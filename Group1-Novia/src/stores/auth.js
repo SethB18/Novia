@@ -1,43 +1,3 @@
-<<<<<<< HEAD
-import { ref, computed } from "vue";
-import { defineStore } from "pinia";
-import api from "@/api/https";
-
-export const useAuthStore = defineStore("auth", () => {
-  let user = ref(null);
-  let token = ref(localStorage.getItem("token"));
-  let isLoggedIn = computed(() => !!token.value);
-
-  async function login(email_or_phone, password) {
-    const res = await api.post("/api/login", { email_or_phone, password });
-    console.log(res);
-    user.value = res.data.data.name;
-    token.value = res.data.data.token;
-    localStorage.setItem("token", token.value);
-    if (!res.data.result) {
-      throw new Error(res.data.message || "Invalid email or password");
-    }
-  }
-
-  async function logout() {
-    const res = await api.delete("/api/logout");
-    user.value = null;
-    token.value = null;
-    localStorage.removeItem("token");
-  }
-
-  async function register(name, email, password, password_confirmation) {
-    await api.post("/api/register", {
-      name,
-      email,
-      password,
-      password_confirmation,
-    });
-  }
-
-  return { user, token, isLoggedIn, login, logout, register, forgotPassword, verifyOtp, resetPassword };
-});
-=======
 import api from "@/api/http";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
@@ -156,4 +116,3 @@ export const useAuthStores = defineStore('auth', () => {
     return { user, token, isLoggedIn, Login, Logout, Register, ForgotPassword, VerifyOtp, Profile }
 
 })
->>>>>>> 8095933eb0b8806bab3616198206a7e90866e0df
