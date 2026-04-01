@@ -1,377 +1,469 @@
 <template>
-  <!-- Page Title -->
-  <div class="d-flex align-items-center gap-3 mt-5 mb-4">
-    <div class="icon-box-title">
-      <User class="text-main" :size="28" />
+<div class="container">
+  <div class="page-title-row">
+    <div class="page-icon-wrap">
+      <User :size="20" />
     </div>
     <div>
-      <h3 class="fw-bold mb-1">My Profile</h3>
-      <p class="text-muted mb-0 small">Manage your account and details</p>
+      <h3 class="page-title">My Profile</h3>
+      <p class="page-sub">Manage your account and details</p>
     </div>
   </div>
 
-  <!-- ── Profile Header Card ── -->
-  <div class="profile-header-card mb-4">
-    <!-- Cover Banner -->
+  <!-- ════════════════════════════════
+       PROFILE HEADER CARD
+  ════════════════════════════════ -->
+  <div class="pcard mb-4">
+
+    <!-- Cover -->
     <div
-      class="cover-banner"
-      :style="profile.cover ? `background-image:url(${profile.cover});background-size:cover;background-position:center` : ''"
+      class="cover"
+      :style="profile.cover
+        ? `background-image:url(${profile.cover});background-size:cover;background-position:center`
+        : ''"
     >
-      <button class="btn btn-cover" @click="$emit('editCover')">
-        <ImageIcon :size="15" class="me-1" /> Edit Cover
-      </button>
+      <!-- Cover gradient overlay -->
+      <div class="cover-overlay" />
+
+      <!-- Edit cover -->
+      <label class="cover-edit-btn" title="Change cover">
+        <input type="file" accept="image/*" @change="handleCoverFile" style="display:none" />
+        <ImageIcon :size="14" />
+        <span>Edit Cover</span>
+      </label>
     </div>
 
-    <!-- Avatar + Info + Actions -->
-    <div class="profile-body px-4 pb-3">
-      <div class="avatar-row">
+    <!-- Body: avatar + info + actions -->
+    <div class="pcard-body">
+      <div class="hero-row">
 
-        <!-- Avatar -->
-        <div class="position-relative avatar-wrapper">
-          <img :src="avatarSrc" class="profile-avatar" alt="profile" />
+        <!-- ── Avatar ── -->
+        <div class="avatar-shell">
+          <img :src="avatarSrc" class="avatar-img" alt="avatar" />
+          <!-- Online dot -->
+          <span class="online-dot" />
+          <!-- Edit dropdown -->
           <div class="dropdown">
-            <span class="avatar-edit-trigger" data-bs-toggle="dropdown">
-              <Pencil :size="14" />
-            </span>
-            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm px-1">
+            <button class="avatar-edit-btn" data-bs-toggle="dropdown" aria-expanded="false">
+              <Camera :size="13" />
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-1">
               <li>
-                <input id="uploadImage" type="file" @change="handleFile" accept="image/*" style="display:none" />
-                <label for="uploadImage" class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2">
-                  <Pencil :size="15" /> Change Photo
+                <input id="avatarFile" type="file" accept="image/*" @change="handleAvatarFile" style="display:none" />
+                <label for="avatarFile" class="dropdown-item d-flex align-items-center gap-2 py-2 px-3">
+                  <Upload :size="14" class="text-primary-v" /> Change Photo
                 </label>
               </li>
+              <li><hr class="dropdown-divider my-1" /></li>
               <li>
-                <button
-                  class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2 text-danger"
-                  type="button"
-                  @click="$emit('removeAvatar')"
-                >
-                  <Trash2 :size="15" /> Remove Photo
+                <button class="dropdown-item d-flex align-items-center gap-2 py-2 px-3 text-danger"
+                        @click="removeAvatar">
+                  <Trash2 :size="14" /> Remove Photo
                 </button>
               </li>
             </ul>
           </div>
         </div>
 
-        <!-- Name / role / meta -->
-        <div class="profile-meta ms-3 mt-5 flex-grow-1">
-          <h4 class="fw-bold mb-1 profile-name">{{ profile.full_name || '—' }}</h4>
+        <!-- ── Name / meta ── -->
+        <div class="hero-info">
+          <div class="name-row">
+            <h4 class="hero-name">{{ profile.full_name || '—' }}</h4>
+            <!-- Verified chip -->
+            <span class="verified-chip" v-if="profile.roles?.length">
+              <CheckCircle2 :size="11" />
+              {{ profile.roles[0]?.name }}
+            </span>
+          </div>
 
-          <!-- Job title + company from professional -->
-          <p class="profile-role mb-2">
-            {{ profile.professional?.job_title || '—' }}
-            <span v-if="profile.professional?.company_name" class="text-muted fw-normal">
-              @ {{ profile.professional.company_name }}
+          <p class="hero-role">
+            <Briefcase :size="13" class="me-1 opacity-70" />
+            {{ profile.professional?.job_title || 'No title set' }}
+            <span class="hero-company" v-if="profile.professional?.company_name">
+              &nbsp;·&nbsp; {{ profile.professional.company_name }}
             </span>
           </p>
 
-          <!-- Positions badges -->
-          <div class="d-flex flex-wrap gap-2 mb-2" v-if="profile.positions?.length">
-            <span class="badge-position" v-for="pos in profile.positions" :key="pos.id">
-              {{ profile.professional.job_title }}
-            </span>
+          <!-- Position + Type chips -->
+          <div class="chip-row" v-if="profile.positions?.length || profile.types?.length">
+            <span class="chip chip-pos" v-for="p in profile.positions" :key="p.id">{{ p.name }}</span>
+            <span class="chip chip-type" v-for="t in profile.types" :key="t.id">{{ t.name }}</span>
           </div>
 
-          <!-- Types badges -->
-          <div class="d-flex flex-wrap gap-2 mb-2" v-if="profile.types?.length">
-            <span class="badge-type" v-for="type in profile.types" :key="type.id">
-              {{ type.name }}
+          <!-- Location / link row -->
+          <div class="meta-row">
+            <span class="meta-pill" v-if="profile.current_city">
+              <MapPin :size="11" /> {{ profile.current_city }}
             </span>
-          </div>
-
-          <div class="d-flex flex-wrap gap-3 mt-2 profile-meta-items">
-            <span class="meta-item" v-if="profile.current_city">
-              <MapPin :size="13" /> {{ profile.current_city }}
+            <span class="meta-pill" v-if="profile.home_town">
+              <Home :size="11" /> {{ profile.home_town }}
             </span>
-            <span class="meta-item" v-if="profile.home_town">
-              <Home :size="13" /> {{ profile.home_town }}
-            </span>
-            <a
-              v-if="profile.portfolio_link"
-              :href="profile.portfolio_link"
-              target="_blank"
-              class="meta-item meta-link"
-            >
-              <LinkIcon :size="13" /> {{ profile.portfolio_link }}
+            <a class="meta-pill meta-pill-link"
+               v-if="profile.portfolio_link"
+               :href="profile.portfolio_link"
+               target="_blank">
+              <Globe :size="11" /> {{ shortLink(profile.portfolio_link) }}
             </a>
           </div>
         </div>
 
-        <!-- Action buttons -->
-        <div class="d-flex gap-2 align-items-start pt-2 flex-shrink-0">
-          <button class="btn btn-outline-profile" @click="$emit('editProfile')">
-            <Pencil :size="14" class="me-1" /> Edit Profile
+        <!-- ── Action buttons ── -->
+        <div class="hero-actions">
+          <button class="btn-edit text-dark" @click="$emit('editProfile')">
+            <SquarePen :size="14" class="text-dark" /> Edit Profile
           </button>
-          <button class="btn btn-danger-soft" @click="$emit('signOut')">
-            <LogOut :size="14" class="me-1" /> Sign out
+          <button class="btn-signout" @click="$emit('signOut')">
+            <LogOut :size="14" /> Sign out
           </button>
         </div>
       </div>
 
-      <!-- Tabs -->
-      <div class="profile-tabs mt-3">
+      <!-- ── Tabs ── -->
+      <nav class="tab-nav">
         <button
           v-for="tab in tabs"
           :key="tab.key"
-          class="tab-btn"
+          class="tab-item"
           :class="{ active: activeTab === tab.key }"
           @click="activeTab = tab.key"
         >
+          <component :is="tab.icon" :size="14" />
           {{ tab.label }}
         </button>
-      </div>
+      </nav>
     </div>
   </div>
 
-  <!-- ── ALL POST: Post Feed ── -->
-  <div v-if="activeTab === 'info'" class="fade-in">
- <button class="btn btn-cover" @click="$emit('newPost')">
-        <square-pen :size="15" class="me-1" /> New Post
-  </button>
-    <!-- Loading skeleton -->
-    <div v-if="postsLoading" class="post-card mb-3 p-4">
-      <div class="d-flex align-items-center gap-3 mb-3">
-        <div class="skeleton skeleton-circle" style="width:42px;height:42px;"></div>
-        <div class="flex-grow-1">
-          <div class="skeleton skeleton-line" style="width:140px;height:14px;margin-bottom:6px;"></div>
-          <div class="skeleton skeleton-line" style="width:80px;height:11px;"></div>
+
+  <!-- ════════════════════════════════
+       TAB: ALL POSTS
+  ════════════════════════════════ -->
+  <div v-if="activeTab === 'posts'" class="tab-fade">
+
+    <!-- New post button -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <p class="section-count text-muted small mb-0">
+        {{ posts.length }} post{{ posts.length !== 1 ? 's' : '' }}
+      </p>
+      <button class="btn-primary-v text-black" @click="$emit('newPost')">
+        <SquarePen :size="14" /> New Post
+      </button>
+    </div>
+
+    <!-- Skeleton -->
+    <template v-if="postsLoading">
+      <div class="post-card mb-3" v-for="n in 2" :key="n">
+        <div class="post-card-header">
+          <div class="sk sk-circle"></div>
+          <div class="flex-grow-1">
+            <div class="sk sk-line" style="width:120px;height:12px;margin-bottom:5px;"></div>
+            <div class="sk sk-line" style="width:80px;height:10px;"></div>
+          </div>
+        </div>
+        <div class="px-4 pb-3">
+          <div class="sk sk-line mb-2" style="width:100%;height:11px;"></div>
+          <div class="sk sk-line mb-3" style="width:65%;height:11px;"></div>
+          <div class="sk sk-block" style="height:180px;border-radius:10px;"></div>
         </div>
       </div>
-      <div class="skeleton skeleton-line mb-2" style="width:100%;height:13px;"></div>
-      <div class="skeleton skeleton-line mb-3" style="width:70%;height:13px;"></div>
-      <div class="skeleton skeleton-img"></div>
+    </template>
+
+    <!-- Empty -->
+    <div v-else-if="!posts.length" class="empty-panel">
+      <div class="empty-icon-wrap">
+        <FileText :size="28" />
+      </div>
+      <p class="empty-title">No posts yet</p>
+      <p class="empty-sub">Share your first post with the world</p>
+      <button class="btn-primary-v mt-2 text-black" @click="$emit('newPost')">
+        <SquarePen :size="13" /> Create Post
+      </button>
     </div>
 
-    <!-- Empty state -->
-    <div v-else-if="!posts.length" class="post-card p-5 text-center">
-      <FileText :size="40" class="text-muted mb-3" />
-      <p class="text-muted mb-0">No posts yet.</p>
-    </div>
-
-    <!-- Post cards -->
+    <!-- Post list -->
     <div v-else>
-      <div v-for="post in posts" :key="post.id" class="post-card mb-3">
-
-        <!-- Post header -->
-        <div class="post-header d-flex align-items-start gap-3">
-          <img
-            :src="post.creator?.avatar || avatarSrc"
-            class="post-avatar"
-            alt=""
-          />
-          <div class="flex-grow-1">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <p class="post-author mb-0">{{ post.creator?.full_name || '—' }}</p>
-                <p class="post-meta-sub mb-0">
-                  {{ post.creator?.current_city || '' }}
-                  <span v-if="post.creator?.current_city"> · </span>
-                  {{ formatDateTime(post.created_at) }}
-                </p>
-              </div>
-              <button class="btn p-0 border-0 bg-transparent">
-                <MoreHorizontal :size="18" class="text-muted" />
-              </button>
-            </div>
+      <article v-for="post in posts" :key="post.id" class="post-card mb-3">
+        <!-- Header -->
+        <div class="post-card-header">
+          <img :src="post.creator?.avatar || avatarSrc" class="post-av" alt="" />
+          <div class="flex-grow-1 min-w-0">
+            <p class="post-name">{{ post.creator?.full_name || '—' }}</p>
+            <p class="post-time">
+              <MapPin :size="10" v-if="post.creator?.current_city" />
+              {{ post.creator?.current_city }}
+              <span v-if="post.creator?.current_city"> · </span>
+              {{ formatDateTime(post.created_at) }}
+            </p>
+          </div>
+          <!-- Post menu -->
+          <div class="dropdown">
+            <button class="post-menu-btn" data-bs-toggle="dropdown">
+              <MoreHorizontal :size="17" />
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-1">
+              <li>
+                <button class="dropdown-item d-flex align-items-center gap-2 py-2 px-3"
+                        @click="$emit('editPost', post)">
+                  <SquarePen :size="13" /> Edit Post
+                </button>
+              </li>
+              <li><hr class="dropdown-divider my-1" /></li>
+              <li>
+                <button class="dropdown-item d-flex align-items-center gap-2 py-2 px-3 text-danger"
+                        @click="$emit('deletePost', post)">
+                  <Trash2 :size="13" /> Delete Post
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
 
-        <!-- Post text -->
+        <!-- Text -->
         <div class="post-body" v-if="post.text">{{ post.text }}</div>
 
         <!-- Categories -->
-        <div v-if="post.categories?.length" class="px-3 pb-2 d-flex flex-wrap gap-1">
-          <span class="badge-position" v-for="cat in post.categories" :key="cat.id">
-            {{ cat.name }}
-          </span>
+        <div class="post-cats" v-if="post.categories?.length">
+          <span class="chip chip-pos" v-for="cat in post.categories" :key="cat.id">{{ cat.name }}</span>
         </div>
 
-        <!-- Main image -->
-        <div v-if="post.image" class="post-image">
-          <img :src="post.image" alt="post image" />
+        <!-- Image (prefer post.image, fallback attachments) -->
+        <div class="post-media" v-if="post.image || post.attachments">
+          <img :src="post.image || post.attachments" alt="media" />
         </div>
 
-        <!-- Attachments (secondary image) -->
-        <div v-else-if="post.attachments" class="post-image">
-          <img :src="post.attachments" alt="attachment" />
-        </div>
-
-        <!-- Stats row -->
+        <!-- Stats -->
         <div class="post-stats">
-          <span class="d-flex align-items-center gap-1">
-            <Heart :size="13" style="color:#7c3aed;" />
-            {{ post.likes_count ?? 0 }} Likes
-          </span>
-          <span>{{ post.comments_count ?? 0 }} Comments</span>
+          <button class="stat-pill" :class="{ 'stat-liked': post.liked }" @click="toggleLike(post)">
+            <Heart :size="13" :fill="post.liked ? 'currentColor' : 'none'" />
+            {{ post.likes_count ?? 0 }}
+          </button>
+          <button class="stat-pill" @click="$emit('commentPost', post)">
+            <MessageSquare :size="13" />
+            {{ post.comments_count ?? 0 }}
+          </button>
+          <div class="ms-auto">
+            <button class="stat-pill" @click="$emit('sharePost', post)">
+              <Share2 :size="13" /> Share
+            </button>
+          </div>
         </div>
-
-        <!-- Action buttons -->
-        <div class="post-actions">
-          <button
-            class="action-btn"
-            :class="{ 'action-liked': post.liked }"
-            @click="toggleLike(post)"
-          >
-            <Heart :size="15" />
-            {{ post.liked ? 'Liked' : 'Like' }}
-          </button>
-          <button class="action-btn" @click="$emit('commentPost', post)">
-            <MessageSquare :size="15" /> Comment
-          </button>
-          <button class="action-btn" @click="$emit('sharePost', post)">
-            <Share2 :size="15" /> Share
-          </button>
-        </div>
-      </div>
+      </article>
     </div>
   </div>
 
-  <!-- ── ABOUT: Professional ── -->
-  <div v-if="activeTab === 'about'" class="info-panel fade-in">
-    <h5 class="panel-title">Professional Information</h5>
+
+  <!-- ════════════════════════════════
+       TAB: ABOUT (Professional)
+  ════════════════════════════════ -->
+  <div v-if="activeTab === 'about'" class="info-panel tab-fade">
+    <div class="panel-header">
+      <h5 class="panel-title">Professional Info</h5>
+      <RouterLink class="btn-ghost" to="/editProfile" @click="$emit('editProfessional')">
+        <SquarePen :size="14" /> Edit
+      </RouterLink>
+    </div>
+
     <div class="row g-0">
-      <div class="col-lg-6 pe-lg-5">
-        <div class="info-row">
-          <span class="info-label">Job Title</span>
-          <p class="info-value">{{ profile.professional?.job_title || '—' }}</p>
+      <div class="col-lg-6 col-divider-right">
+        <div class="info-field">
+          <span class="field-label">Job Title</span>
+          <p class="field-val">{{ profile.professional?.job_title || '—' }}</p>
         </div>
-        <div class="info-row">
-          <span class="info-label">Company</span>
-          <p class="info-value">{{ profile.professional?.company_name || '—' }}</p>
+        <div class="info-field">
+          <span class="field-label">Company</span>
+          <p class="field-val">{{ profile.professional?.company_name || '—' }}</p>
         </div>
-        <div class="info-row">
-          <span class="info-label">Responsibility</span>
-          <p class="info-value" style="white-space:pre-line;">{{ profile.professional?.responsibility || '—' }}</p>
-        </div>
-      </div>
-      <div class="col-lg-6 ps-lg-4 border-start-lg">
-        <div class="info-row">
-          <span class="info-label">Positions</span>
-          <div class="d-flex flex-wrap gap-2 mt-1">
-            <span class="badge-position" v-for="pos in profile.positions" :key="pos.id">{{ pos.name }}</span>
-            <span v-if="!profile.positions?.length" class="info-value">—</span>
-          </div>
-        </div>
-        <div class="info-row mt-3">
-          <span class="info-label">Types</span>
-          <div class="d-flex flex-wrap gap-2 mt-1">
-            <span class="badge-type" v-for="t in profile.types" :key="t.id">{{ t.name }}</span>
-            <span v-if="!profile.types?.length" class="info-value">—</span>
-          </div>
-        </div>
-        <div class="info-row mt-3">
-          <span class="info-label">Collaboration Link</span>
-          <p class="info-value">
-            <a
-              v-if="profile.collaboration?.company_link"
-              :href="profile.collaboration.company_link"
-              target="_blank"
-              class="info-link"
-            >{{ profile.collaboration.company_link }}</a>
-            <span v-else>—</span>
-          </p>
-        </div>
-        <div class="info-row">
-          <span class="info-label">CV</span>
-          <p class="info-value">
-            <a v-if="profile.cv" :href="profile.cv" target="_blank" class="info-link">View CV</a>
-            <span v-else class="text-muted" style="font-size:.85rem;">Not uploaded</span>
+        <div class="info-field">
+          <span class="field-label">Responsibility</span>
+          <p class="field-val" style="white-space:pre-line;line-height:1.7;">
+            {{ profile.professional?.responsibility || '—' }}
           </p>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- ── EDUCATION ── -->
-  <div v-if="activeTab === 'education'" class="info-panel fade-in">
-    <h5 class="panel-title">Education</h5>
-    <div v-if="profile.educations?.length">
-      <div class="timeline-item" v-for="edu in profile.educations" :key="edu.id">
-        <p class="fw-bold mb-0">{{ edu.degree || edu.school || '—' }}</p>
-        <p class="text-muted small mb-0">{{ edu.institution }} · {{ edu.year }}</p>
-      </div>
-    </div>
-    <div v-else class="empty-state">
-      <GraduationCap :size="36" class="mb-2 text-muted" />
-      <p class="text-muted small">No education records yet.</p>
-    </div>
-  </div>
-
-  <!-- ── PROJECTS ── -->
-  <div v-if="activeTab === 'project'" class="info-panel fade-in">
-    <h5 class="panel-title">Projects</h5>
-    <div v-if="profile.projects?.length">
-      <div class="proj-item" v-for="proj in profile.projects" :key="proj.id">
-        <div class="d-flex align-items-center justify-content-between">
-          <p class="fw-bold mb-1">{{ proj.title }}</p>
-          <a :href="proj.link" target="_blank" class="proj-link">
-            <ExternalLink :size="14" /> Visit
+      <div class="col-lg-6 ps-lg-5">
+        <div class="info-field">
+          <span class="field-label">Positions</span>
+          <div class="chip-row mt-2">
+            <span class="chip chip-pos" v-for="p in profile.positions" :key="p.id">{{ p.name }}</span>
+            <span class="field-val" v-if="!profile.positions?.length">—</span>
+          </div>
+        </div>
+        <div class="info-field">
+          <span class="field-label">Types</span>
+          <div class="chip-row mt-2">
+            <span class="chip chip-type" v-for="t in profile.types" :key="t.id">{{ t.name }}</span>
+            <span class="field-val" v-if="!profile.types?.length">—</span>
+          </div>
+        </div>
+        <div class="info-field">
+          <span class="field-label">Collaboration Link</span>
+          <a v-if="profile.collaboration?.company_link"
+             :href="profile.collaboration.company_link"
+             target="_blank" class="field-link">
+            <Globe :size="13" /> {{ shortLink(profile.collaboration.company_link) }}
           </a>
+          <p class="field-val" v-else>—</p>
         </div>
-        <p class="info-link small mb-0">{{ proj.link }}</p>
+        <div class="info-field">
+          <span class="field-label">CV / Resume</span>
+          <a v-if="profile.cv" :href="profile.cv" target="_blank" class="field-link">
+            <FileText :size="13" /> View CV
+          </a>
+          <p class="field-muted" v-else>Not uploaded</p>
+        </div>
       </div>
     </div>
-    <div v-else class="empty-state">
-      <FolderOpen :size="36" class="mb-2 text-muted" />
-      <p class="text-muted small">No projects added yet.</p>
+  </div>
+
+
+  <!-- ════════════════════════════════
+       TAB: EDUCATION
+  ════════════════════════════════ -->
+  <div v-if="activeTab === 'education'" class="info-panel tab-fade">
+    <div class="panel-header">
+      <h5 class="panel-title">Education</h5>
+      <RouterLink class="btn-ghost" to="/editEducation" @click="$emit('editEducation')">
+        <Plus :size="14" /> Add
+      </RouterLink>
+    </div>
+
+    <div v-if="profile.educations?.length">
+      <div class="timeline-item" v-for="(edu, i) in profile.educations" :key="edu.id"
+           :style="`--delay:${i * 60}ms`">
+        <div class="timeline-dot" />
+        <div class="timeline-content">
+          <p class="tl-title">{{edu.degree.name}}</p>
+          <p class="tl-sub">{{ edu.subject?.name || '—' }}<span v-if="edu.year"> · {{ edu.year }}</span></p>
+                          <Building2 :size="11" class="me-1" />
+                {{ edu.school?.name || '—' }}
+
+        </div>
+      </div>
+    </div>
+
+    <div v-else class="empty-panel">
+      <div class="empty-icon-wrap"><GraduationCap :size="26" /></div>
+      <p class="empty-title">No education records</p>
+      <p class="empty-sub">Add your academic background</p>
     </div>
   </div>
 
-  <!-- ── SKILLS ── -->
-  <div v-if="activeTab === 'skills'" class="info-panel fade-in">
-    <h5 class="panel-title">Skills</h5>
-    <div v-if="profile.skills?.length" class="d-flex flex-wrap gap-2">
-      <span class="skill-badge" v-for="skill in profile.skills" :key="skill.id">
-        {{ skill.name }}
-      </span>
+
+  <!-- ════════════════════════════════
+       TAB: PROJECTS
+  ════════════════════════════════ -->
+  <div v-if="activeTab === 'project'" class="info-panel tab-fade">
+    <div class="panel-header">
+      <h5 class="panel-title">Projects</h5>
+      <RouterLink class="btn-ghost" to="/editProject" @click="$emit('editProject')">
+        <Plus :size="14" /> Add
+      </RouterLink>
     </div>
-    <div v-else class="empty-state">
-      <Layers :size="36" class="mb-2 text-muted" />
-      <p class="text-muted small">No skills added yet.</p>
+
+    <div class="proj-grid" v-if="profile.projects?.length">
+      <a
+        v-for="(proj, i) in profile.projects"
+        :key="proj.id"
+        :href="proj.link"
+        target="_blank"
+        class="proj-card"
+        :style="`--delay:${i * 60}ms`"
+      >
+        <div class="proj-icon-wrap">
+          <FolderOpen :size="20" />
+        </div>
+        <div class="flex-grow-1 min-w-0">
+          <p class="proj-name">{{ proj.title }}</p>
+          <p class="proj-url">{{ shortLink(proj.link) }}</p>
+        </div>
+        <ExternalLink :size="14" class="proj-arrow" />
+      </a>
+    </div>
+
+    <div v-else class="empty-panel">
+      <div class="empty-icon-wrap"><FolderOpen :size="26" /></div>
+      <p class="empty-title">No projects yet</p>
+      <p class="empty-sub">Showcase your work here</p>
     </div>
   </div>
 
+
+  <!-- ════════════════════════════════
+       TAB: SKILLS
+  ════════════════════════════════ -->
+  <div v-if="activeTab === 'skills'" class="info-panel tab-fade">
+    <div class="panel-header">
+      <h5 class="panel-title">Skills</h5>
+      <button class="btn-ghost" @click="$emit('editSkills')">
+        <SquarePen :size="14" /> Edit
+      </button>
+    </div>
+
+    <div class="skills-wrap" v-if="profile.skills?.length">
+      <span
+        class="skill-tag"
+        v-for="(skill, i) in profile.skills"
+        :key="skill.id"
+        :style="`--delay:${i * 30}ms`"
+      >{{ skill.name }}</span>
+    </div>
+
+    <div v-else class="empty-panel">
+      <div class="empty-icon-wrap"><Layers :size="26" /></div>
+      <p class="empty-title">No skills added</p>
+      <p class="empty-sub">Highlight your technical expertise</p>
+    </div>
+  </div>
+</div>
 </template>
 
+
+<!-- ══════════════════════════════════════════════════════════
+     SCRIPT
+══════════════════════════════════════════════════════════ -->
 <script setup>
-import { useAuthStores } from "@/stores/auth"
 import { ref, onMounted } from "vue"
 import {
-  User, Pencil, Trash2, ImageIcon, MapPin,
-  Home, Link as LinkIcon, LogOut, GraduationCap,
-  ExternalLink, FolderOpen, Layers,
-  Heart, MessageSquare, Share2, MoreHorizontal, FileText
+  User, Pencil, Trash2, ImageIcon, MapPin, Home,
+  Globe, LogOut, GraduationCap, ExternalLink,
+  FolderOpen, Layers, Heart, MessageSquare, Share2,
+  MoreHorizontal, FileText, SquarePen, Camera, Upload,
+  CheckCircle2, Briefcase, Plus, BookOpen, Code2,
+  Newspaper
 } from "lucide-vue-next"
-import { usePostStore } from "@/stores/post"  // adjust path to your post store
+import { useAuthStores }    from "@/stores/auth"
+import { usePostStore }     from "@/stores/post"
+import { useProfileStore }  from "@/stores/profile"
 
-// ── Stores ─────────────────────────────────────────────
-const auth     = useAuthStores()
-const postStore = usePostStore()
+// ── Stores ─────────────────────────────────────────────────
+const auth          = useAuthStores()
+const postStore     = usePostStore()
+const profileStore  = useProfileStore()
 
-// ── State ──────────────────────────────────────────────
+// ── State ──────────────────────────────────────────────────
 const profile      = ref({})
 const avatarSrc    = ref("https://i.pinimg.com/736x/13/7f/60/137f60eb88c20c91362878bd395df867.jpg")
-const activeTab    = ref("info")
+const activeTab    = ref("posts")
 const posts        = ref([])
 const postsLoading = ref(true)
 
 const tabs = [
-  { key: "info",      label: "All Post"  },
-  { key: "about",     label: "About"     },
-  { key: "education", label: "Education" },
-  { key: "project",   label: "Project"   },
-  { key: "skills",    label: "Skills"    },
+  { key: "posts",     label: "All Posts",  icon: Newspaper   },
+  { key: "about",     label: "About",      icon: Briefcase   },
+  { key: "education", label: "Education",  icon: BookOpen    },
+  { key: "project",   label: "Projects",   icon: FolderOpen  },
+  { key: "skills",    label: "Skills",     icon: Code2       },
 ]
 
-// ── Lifecycle ──────────────────────────────────────────
-onMounted(async () => {
-  await Promise.all([loadProfile(), loadPosts()])
-})
+// ── Lifecycle ──────────────────────────────────────────────
+onMounted(() => Promise.all([loadProfile(), loadPosts()]))
 
+// ── Load profile ───────────────────────────────────────────
 async function loadProfile() {
   try {
+    // Uses auth store (existing) OR profileStore.getProfile()
     const res = await auth.profile()
-    // res.data → { result, code, message, data: { id, full_name, avatar, ... } }
+    // res.data → { result, code, message, data: { id, full_name, avatar, cover, ... } }
     if (res.data.result) {
       profile.value = res.data.data
       if (res.data.data.avatar) avatarSrc.value = res.data.data.avatar
@@ -381,13 +473,19 @@ async function loadProfile() {
   }
 }
 
+// ── Load posts ─────────────────────────────────────────────
 async function loadPosts() {
   postsLoading.value = true
   try {
-    const res = await postStore.getMyPosts()
-    // res.data → { result, code, message, data: [ { id, text, image, creator, categories, attachments, created_at }, ... ] }
+    const res = await postStore.getAllPosts()
+    // res.data → { result, code, message, data: [ { id, text, image, creator, categories, attachments, created_at } ] }
     if (res.data.result) {
-      posts.value = (res.data.data ?? []).map(p => ({ ...p, liked: false }))
+      posts.value = (res.data.data ?? []).map(p => ({
+        ...p,
+        liked:          false,
+        likes_count:    p.likes_count    ?? 0,
+        comments_count: p.comments_count ?? 0,
+      }))
     }
   } catch (e) {
     console.error("Failed to load posts", e)
@@ -396,252 +494,476 @@ async function loadPosts() {
   }
 }
 
-// ── Methods ────────────────────────────────────────────
-function handleFile(e) {
+// ── Avatar handlers ────────────────────────────────────────
+function handleAvatarFile(e) {
   const file = e.target.files[0]
   if (!file) return
   avatarSrc.value = URL.createObjectURL(file)
+  // Upload to API → profileStore.updateAvatar(file)
+  profileStore.updateAvatar(file).catch(console.error)
 }
 
+function removeAvatar() {
+  // Call API → profileStore.deleteAvatar()
+  profileStore.deleteAvatar()
+    .then(() => { avatarSrc.value = "https://i.pinimg.com/736x/13/7f/60/137f60eb88c20c91362878bd395df867.jpg" })
+    .catch(console.error)
+}
+
+// ── Cover handler ──────────────────────────────────────────
+function handleCoverFile(e) {
+  const file = e.target.files[0]
+  if (!file) return
+  // Optimistic preview
+  profile.value = { ...profile.value, cover: URL.createObjectURL(file) }
+  // Upload to API → profileStore.updateCover(file)
+  profileStore.updateCover(file).catch(console.error)
+}
+
+// ── Post actions ───────────────────────────────────────────
 function toggleLike(post) {
-  post.liked = !post.liked
+  post.liked       = !post.liked
   post.likes_count = (post.likes_count ?? 0) + (post.liked ? 1 : -1)
 }
 
+// ── Helpers ────────────────────────────────────────────────
 /** "2026-03-30 08:39:34" → "30 Mar 2026, 08:39" */
-function formatDateTime(dateStr) {
-  if (!dateStr) return "—"
-  const d = new Date(dateStr.replace(" ", "T"))
+function formatDateTime(str) {
+  if (!str) return "—"
+  const d = new Date(str.replace(" ", "T"))
   return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
-    + ", " + d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+       + ", " + d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
 }
 
-/** "1999-01-01" → "01 Jan 1999" */
-function formatDate(dateStr) {
-  if (!dateStr) return "—"
-  const d = new Date(dateStr)
-  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+/** "https://chandalen.dev/some/path" → "chandalen.dev" */
+function shortLink(url) {
+  try { return new URL(url).hostname.replace("www.", "") }
+  catch { return url }
 }
 </script>
 
+
+<!-- ══════════════════════════════════════════════════════════
+     STYLES
+══════════════════════════════════════════════════════════ -->
 <style scoped>
-/* ── Card shell ── */
-.profile-header-card {
-  background: #fff;
-  border: 1px solid #e9e3ff;
-  border-radius: 16px;
-  box-shadow: 0 2px 16px rgba(124,58,237,.08);
+/* ── Design tokens ── */
+:root {
+  --v:       #6d28d9;
+  --v-light: #ede9fe;
+  --v-mid:   #7c3aed;
+  --v-dark:  #4c1d95;
+  --border:  #ede9fe;
+  --bg:      #faf9ff;
+  --text:    #1e1b4b;
+  --muted:   #6b7280;
+  --card:    #ffffff;
+  --shadow:  0 2px 20px rgba(109,40,217,.07);
+  --radius:  16px;
+}
+
+/* ── Page header ── */
+.page-title-row {
+  display: flex; align-items: center; gap: 14px;
+  margin: 36px 0 24px;
+}
+.page-icon-wrap {
+  width: 42px; height: 42px;
+  background: var(--v-light);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--v-mid);
+}
+.page-title { font-size: 1.2rem; font-weight: 800; margin: 0; color: var(--text); letter-spacing: -.02em; }
+.page-sub   { font-size: .78rem; color: var(--muted); margin: 0; }
+
+/* ── Profile card shell ── */
+.pcard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
   overflow: visible;
 }
 
 /* ── Cover ── */
-.cover-banner {
-  background-color: #7c3aed;
-  height: 160px;
-  border-radius: 15px 15px 0 0;
+.cover {
+  height: 180px;
+  background: linear-gradient(135deg, #6d28d9 0%, #a855f7 60%, #7c3aed 100%);
+  border-radius: var(--radius) var(--radius) 0 0;
   position: relative;
+  overflow: hidden;
 }
-.btn-cover {
-  position: absolute;
-  top: 14px; right: 14px;
-  background: #fff;
-  border: 1.5px solid #e9e3ff;
+.cover-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,.22));
+}
+.cover-edit-btn {
+  position: absolute; bottom: 14px; right: 14px;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.18);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.35);
+  color: #fff;
   border-radius: 8px;
-  font-size: .8rem; font-weight: 500;
-  padding: 6px 14px; color: #374151;
-  display: inline-flex; align-items: center; gap: 4px;
-  transition: background .15s;
+  padding: 6px 13px;
+  font-size: .78rem; font-weight: 500;
+  cursor: pointer;
+  transition: background .2s;
 }
-.btn-cover:hover { background: #f5f3ff; }
+.cover-edit-btn:hover { background: rgba(255,255,255,.28); }
+
+/* ── Card body ── */
+.pcard-body { padding: 0 24px 0; }
+
+/* ── Hero row ── */
+.hero-row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: -48px;
+  padding-bottom: 16px;
+}
 
 /* ── Avatar ── */
-.avatar-row {
-  display: flex; align-items: flex-start;
-  flex-wrap: wrap; gap: 8px;
-  margin-top: -44px;
+.avatar-shell {
+  position: relative;
+  width: 96px; height: 96px;
+  flex-shrink: 0;
 }
-.avatar-wrapper { position: relative; width: 96px; height: 96px; flex-shrink: 0; }
-.profile-avatar {
+.avatar-img {
   width: 96px; height: 96px;
   border-radius: 50%;
   border: 4px solid #fff;
   object-fit: cover;
-  box-shadow: 0 4px 18px rgba(124,58,237,.22);
+  box-shadow: 0 4px 20px rgba(109,40,217,.25);
 }
-.avatar-edit-trigger {
-  position: absolute; bottom: 2px; right: -4px;
+.online-dot {
+  position: absolute; bottom: 6px; right: 2px;
+  width: 14px; height: 14px;
+  background: #22c55e;
+  border: 2.5px solid #fff;
+  border-radius: 50%;
+}
+.avatar-edit-btn {
+  position: absolute; top: 0; right: -2px;
   width: 28px; height: 28px;
-  background: #7c3aed; border-radius: 50%;
+  background: var(--v-mid);
+  border: 2px solid #fff;
+  border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  color: #fff; cursor: pointer;
-  box-shadow: 0 2px 8px rgba(124,58,237,.35);
-  transition: background .15s;
+  color: #fff;
+  cursor: pointer;
+  transition: background .15s, transform .15s;
+  box-shadow: 0 2px 8px rgba(109,40,217,.3);
 }
-.avatar-edit-trigger:hover { background: #5b21b6; }
+.avatar-edit-btn:hover { background: var(--v-dark); transform: scale(1.08); }
 
-/* ── Name / meta ── */
-.profile-name { font-size: 1.15rem; color: #1e1b4b; }
-.profile-role { font-size: .82rem; font-weight: 600; color: #7c3aed; }
-.meta-item    { font-size: .78rem; color: #6b7280; display: inline-flex; align-items: center; gap: 4px; }
-.meta-link    { text-decoration: none; color: #7c3aed; }
-.meta-link:hover { text-decoration: underline; }
+/* ── Hero info ── */
+.hero-info { flex: 1; min-width: 0; padding-top: 52px; }
 
-/* ── Badges ── */
-.badge-position { background:#ede9fe; color:#5b21b6; font-size:.72rem; font-weight:600; padding:3px 10px; border-radius:20px; }
-.badge-type     { background:#fef3c7; color:#92400e; font-size:.72rem; font-weight:600; padding:3px 10px; border-radius:20px; }
-.badge-role     { background:#d1fae5; color:#065f46; font-size:.72rem; font-weight:600; padding:3px 10px; border-radius:20px; }
-.skill-badge    { background:#f3f4f6; color:#374151; font-size:.78rem; font-weight:600; padding:5px 14px; border-radius:20px; border:1px solid #e5e7eb; }
+.name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.hero-name { font-size: 1.18rem; font-weight: 800; color: var(--text); margin: 0; letter-spacing: -.025em; }
+.verified-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #dcfce7; color: #166534;
+  font-size: .68rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px;
+  border: 1px solid #bbf7d0;
+}
 
-/* ── Buttons ── */
-.btn-outline-profile {
-  border: 1.5px solid #e9e3ff; background: transparent;
-  color: #1e1b4b; border-radius: 8px;
-  padding: 7px 16px; font-size: .82rem; font-weight: 500;
+.hero-role {
+  font-size: .82rem; font-weight: 500;
+  color: var(--v-mid);
+  display: flex; align-items: center; gap: 4px;
+  margin-bottom: 8px;
+}
+.hero-company { color: var(--muted); font-weight: 400; }
+
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.chip {
+  font-size: .7rem; font-weight: 700;
+  padding: 3px 10px; border-radius: 20px;
   display: inline-flex; align-items: center;
-  transition: border-color .15s, background .15s;
 }
-.btn-outline-profile:hover { border-color: #7c3aed; background: #ede9fe; }
-.btn-danger-soft {
-  border: 1.5px solid #fee2e2; background: transparent;
-  color: #dc2626; border-radius: 8px;
-  padding: 7px 16px; font-size: .82rem; font-weight: 500;
-  display: inline-flex; align-items: center;
-  transition: background .15s;
-}
-.btn-danger-soft:hover { background: #fee2e2; }
+.chip-pos  { background: var(--v-light); color: var(--v-dark); border: 1px solid #ddd6fe; }
+.chip-type { background: #fef9c3; color: #713f12; border: 1px solid #fde68a; }
 
-/* ── Tabs ── */
-.profile-tabs { border-top: 1px solid #e9e3ff; display: flex; padding-top: 2px; flex-wrap: wrap; }
-.tab-btn {
+.meta-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.meta-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: .74rem; color: var(--muted);
+  background: #f5f3ff;
+  padding: 3px 10px; border-radius: 20px;
+  border: 1px solid var(--border);
+  text-decoration: none;
+}
+.meta-pill-link { color: var(--v-mid); }
+.meta-pill-link:hover { background: var(--v-light); }
+
+/* ── Hero actions ── */
+.hero-actions {
+  display: flex; flex-direction: column; gap: 8px;
+  padding-top: 52px;
+  flex-shrink: 0;
+}
+.btn-edit {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--v-mid); color: #fff;
+  border: none; border-radius: 9px;
+  padding: 8px 18px; font-size: .82rem; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: background .15s, transform .1s;
+  box-shadow: 0 3px 12px rgba(109,40,217,.3);
+}
+.btn-edit:hover { background: var(--v-dark); transform: translateY(-1px); }
+
+.btn-signout {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: transparent; color: #dc2626;
+  border: 1.5px solid #fecaca; border-radius: 9px;
+  padding: 7px 18px; font-size: .82rem; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: background .15s, border-color .15s;
+}
+.btn-signout:hover { background: #fff1f2; border-color: #fca5a5; }
+
+/* ── Tab nav ── */
+.tab-nav {
+  display: flex; gap: 0; flex-wrap: wrap;
+  border-top: 1px solid var(--border);
+  margin: 0 -24px;
+  padding: 0 24px;
+}
+.tab-item {
+  display: inline-flex; align-items: center; gap: 6px;
   background: none; border: none;
   border-bottom: 2.5px solid transparent;
-  padding: 10px 18px; font-size: .84rem; font-weight: 500;
-  color: #6b7280; cursor: pointer;
+  padding: 12px 16px;
+  font-size: .82rem; font-weight: 500;
+  color: var(--muted); cursor: pointer;
   transition: color .15s, border-color .15s;
+  white-space: nowrap;
 }
-.tab-btn:hover  { color: #7c3aed; }
-.tab-btn.active { color: #7c3aed; border-bottom-color: #7c3aed; }
+.tab-item:hover { color: var(--v-mid); }
+.tab-item.active { color: var(--v-mid); border-bottom-color: var(--v-mid); font-weight: 700; }
 
-/* ── Info panel ── */
+/* ── Tab animation ── */
+.tab-fade { animation: tabIn .3s cubic-bezier(.22,1,.36,1) both; }
+@keyframes tabIn {
+  from { opacity:0; transform: translateY(8px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+/* ── Shared panel ── */
 .info-panel {
-  background: #fff;
-  border: 1px solid #e9e3ff;
-  border-radius: 16px;
-  box-shadow: 0 2px 16px rgba(124,58,237,.08);
-  padding: 28px 32px 32px;
-  margin-bottom: 24px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px 28px 28px;
+  margin-bottom: 20px;
 }
-.panel-title {
-  font-size: 1rem; font-weight: 700; color: #1e1b4b;
-  margin-bottom: 24px; padding-bottom: 12px;
-  border-bottom: 1px solid #e9e3ff;
+.panel-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
 }
-.info-row     { margin-bottom: 18px; }
-.info-label   { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #9ca3af; }
-.info-value   { font-size: .95rem; font-weight: 600; color: #1e1b4b; margin: 4px 0 0; }
-.info-value.mono { font-family: 'Courier New', monospace; font-size: .88rem; }
-.info-link    { color: #7c3aed; text-decoration: none; }
-.info-link:hover { text-decoration: underline; }
+.panel-title { font-size: .95rem; font-weight: 800; color: var(--text); margin: 0; letter-spacing: -.01em; }
 
-@media (min-width: 992px) {
-  .border-start-lg { border-left: 1px solid #e9e3ff !important; }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--v-light); color: var(--v-mid);
+  border: 1px solid #ddd6fe; border-radius: 7px;
+  padding: 5px 12px; font-size: .78rem; font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
 }
+.btn-ghost:hover { background: #ddd6fe; }
 
-/* ── Timeline / project items ── */
-.timeline-item, .proj-item {
-  border-left: 3px solid #7c3aed;
-  padding: 10px 16px;
-  background: #f5f3ff;
-  border-radius: 0 8px 8px 0;
-  margin-bottom: 12px;
+.btn-primary-v {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--v-mid); color: #fff;
+  border: none; border-radius: 9px;
+  padding: 8px 18px; font-size: .82rem; font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+  box-shadow: 0 3px 12px rgba(109,40,217,.25);
 }
-.proj-link {
-  font-size: .78rem; font-weight: 600;
-  color: #7c3aed; text-decoration: none;
-  display: inline-flex; align-items: center; gap: 4px;
+.btn-primary-v:hover { background: var(--v-dark); transform: translateY(-1px); }
+
+/* ── Info fields ── */
+.col-divider-right { padding-right: 36px; }
+@media (min-width:992px) {
+  .col-divider-right { border-right: 1px solid var(--border); }
+  .col-lg-6.ps-lg-5  { padding-left: 36px !important; }
 }
-.proj-link:hover { text-decoration: underline; }
-
-/* ── Empty state ── */
-.empty-state { text-align: center; padding: 32px 0 16px; display: flex; flex-direction: column; align-items: center; }
-
-/* ── Dropdown ── */
-.dropdown-menu { min-width: 170px; border-radius: 10px; font-size: .85rem; }
-
-/* ── Animation ── */
-.fade-in { animation: fadeUp .28s ease both; }
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+.info-field { margin-bottom: 20px; }
+.field-label {
+  font-size: .68rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: #a78bfa; display: block; margin-bottom: 4px;
 }
+.field-val   { font-size: .9rem; font-weight: 600; color: var(--text); margin: 0; }
+.field-muted { font-size: .82rem; color: var(--muted); margin: 0; }
+.field-link  {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: .86rem; font-weight: 600;
+  color: var(--v-mid); text-decoration: none;
+}
+.field-link:hover { text-decoration: underline; }
+
+/* ── Timeline ── */
+.timeline-item {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f3ff;
+  animation: tabIn .3s var(--delay, 0ms) both;
+}
+.timeline-item:last-child { border-bottom: none; }
+.timeline-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--v-mid);
+  border: 2px solid var(--v-light);
+  flex-shrink: 0; margin-top: 5px;
+}
+.tl-title { font-size: .9rem; font-weight: 700; color: var(--text); margin: 0 0 3px; }
+.tl-sub   { font-size: .78rem; color: var(--muted); margin: 0; }
+
+/* ── Project grid ── */
+.proj-grid { display: flex; flex-direction: column; gap: 10px; }
+.proj-card {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  background: #faf9ff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: box-shadow .18s, transform .18s, background .18s;
+  animation: tabIn .3s var(--delay, 0ms) both;
+}
+.proj-card:hover {
+  background: var(--v-light);
+  box-shadow: 0 4px 16px rgba(109,40,217,.12);
+  transform: translateY(-1px);
+}
+.proj-icon-wrap {
+  width: 38px; height: 38px;
+  background: var(--v-light);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--v-mid); flex-shrink: 0;
+}
+.proj-name  { font-size: .88rem; font-weight: 700; color: var(--text); margin: 0 0 2px; }
+.proj-url   { font-size: .74rem; color: var(--muted); margin: 0; }
+.proj-arrow { color: var(--v-mid); flex-shrink: 0; }
+
+/* ── Skills ── */
+.skills-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.skill-tag {
+  display: inline-block;
+  background: #f5f3ff; color: var(--text);
+  font-size: .8rem; font-weight: 600;
+  padding: 6px 14px; border-radius: 20px;
+  border: 1px solid var(--border);
+  transition: background .15s, color .15s, transform .15s;
+  animation: tabIn .25s var(--delay, 0ms) both;
+}
+.skill-tag:hover { background: var(--v-light); color: var(--v-dark); transform: translateY(-1px); }
 
 /* ── Post card ── */
 .post-card {
-  background: #fff;
-  border: 1px solid #e9e3ff;
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(124,58,237,.07);
+  box-shadow: var(--shadow);
   overflow: hidden;
-  transition: box-shadow .2s;
+  transition: box-shadow .2s, transform .2s;
 }
-.post-card:hover { box-shadow: 0 6px 24px rgba(124,58,237,.13); }
+.post-card:hover { box-shadow: 0 8px 28px rgba(109,40,217,.12); transform: translateY(-1px); }
 
-.post-header { padding: 16px 16px 8px; }
-.post-avatar {
-  width: 42px; height: 42px;
-  border-radius: 50%; object-fit: cover;
-  border: 2px solid #ede9fe;
-  flex-shrink: 0;
+.post-card-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 16px 10px;
 }
-.post-author   { font-size: .88rem; font-weight: 700; color: #1e1b4b; }
-.post-meta-sub { font-size: .74rem; color: #9ca3af; }
+.post-av {
+  width: 40px; height: 40px;
+  border-radius: 50%; object-fit: cover;
+  border: 2px solid var(--v-light); flex-shrink: 0;
+}
+.post-name { font-size: .86rem; font-weight: 700; color: var(--text); }
+.post-time { font-size: .72rem; color: #a1a1aa; display: flex; align-items: center; gap: 3px; }
+.post-menu-btn {
+  background: none; border: none; cursor: pointer;
+  color: #a1a1aa; padding: 4px;
+  border-radius: 6px; transition: background .15s;
+}
+.post-menu-btn:hover { background: #f3f0ff; color: var(--v-mid); }
 
 .post-body {
-  padding: 4px 16px 12px;
-  font-size: .875rem;
-  line-height: 1.65;
-  color: #374151;
+  padding: 2px 16px 12px;
+  font-size: .875rem; line-height: 1.68; color: #374151;
 }
+.post-cats { padding: 0 16px 10px; display: flex; flex-wrap: wrap; gap: 6px; }
 
-.post-image img {
-  width: 100%;
-  max-height: 280px;
-  object-fit: cover;
-  display: block;
+.post-media img {
+  width: 100%; display: block;
+  max-height: 300px; object-fit: cover;
 }
 
 .post-stats {
-  padding: 10px 16px;
-  font-size: .78rem;
-  color: #9ca3af;
-  border-top: 1px solid #f3f0ff;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 14px;
+  border-top: 1px solid #f5f3ff;
 }
-
-.post-actions {
-  border-top: 1px solid #f3f0ff;
-  display: flex;
-}
-.action-btn {
-  flex: 1;
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  padding: 10px 0;
-  font-size: .82rem; font-weight: 500;
-  color: #6b7280;
+.stat-pill {
+  display: inline-flex; align-items: center; gap: 5px;
   background: none; border: none;
-  cursor: pointer;
+  font-size: .78rem; font-weight: 600; color: #9ca3af;
+  padding: 5px 10px; border-radius: 20px; cursor: pointer;
+  transition: background .15s, color .15s;
   font-family: inherit;
-  transition: color .15s, background .15s;
 }
-.action-btn:hover  { color: #7c3aed; background: #f5f3ff; }
-.action-liked      { color: #7c3aed !important; }
+.stat-pill:hover  { background: #f5f3ff; color: var(--v-mid); }
+.stat-liked       { color: var(--v-mid) !important; background: var(--v-light); }
 
-/* ── Skeleton loader ── */
-.skeleton { background: linear-gradient(90deg,#f3f0ff 25%,#e9e3ff 50%,#f3f0ff 75%); background-size:200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
-.skeleton-circle  { border-radius: 50%; flex-shrink: 0; }
-.skeleton-line    { display: block; }
-.skeleton-img     { width: 100%; height: 180px; border-radius: 8px; }
-@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+/* ── Skeleton ── */
+.sk {
+  background: linear-gradient(90deg, #f3f0ff 25%, #e9e3ff 50%, #f3f0ff 75%);
+  background-size: 300% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px; display: block;
+}
+.sk-circle { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+.sk-line   { }
+.sk-block  { width: 100%; }
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to   { background-position: -100% 0; }
+}
+
+/* ── Empty state ── */
+.empty-panel {
+  text-align: center;
+  padding: 40px 20px 24px;
+  display: flex; flex-direction: column; align-items: center;
+}
+.empty-icon-wrap {
+  width: 56px; height: 56px;
+  background: var(--v-light);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--v-mid); margin-bottom: 14px;
+}
+.empty-title { font-size: .92rem; font-weight: 700; color: var(--text); margin: 0 0 4px; }
+.empty-sub   { font-size: .8rem; color: var(--muted); margin: 0; }
+
+/* ── Misc ── */
+.min-w-0 { min-width: 0; }
+.dropdown-menu { min-width: 160px; border-radius: 10px; font-size: .83rem; }
+.dropdown-item { cursor: pointer; font-size: .83rem; }
+.section-count { font-size: .8rem; }
 </style>

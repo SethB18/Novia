@@ -7,6 +7,9 @@ import ProfileView from '../views/ProfileDetailsView.vue'
 import LoginView from '@/views/Auth/LoginView.vue'
 import RegisterView from '@/views/Auth/RegitsterView.vue'
 import ProfileDetailsView from '../views/ProfileDetailsView.vue'
+import Editprofileinfoview from '@/views/Editprofileinfoview.vue' 
+import Editeducationview from '../views/Editeducationview.vue'
+import Editprojectview from '@/views/Editprojectview.vue'  
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -57,6 +60,24 @@ const router = createRouter({
       component: ProfileDetailsView,
       meta: { require: true },
 
+    },
+    {
+      path: '/editProfile',
+      name: 'editProfile',
+      component: () => import('@/views/Editprofileinfoview.vue'),
+      meta: { require: true },
+    },
+    {
+      path: '/editEducation',
+      name: 'editEducation',
+      component: () => import('@/views/Editeducationview.vue'),
+      meta: { require: true },
+    },
+    {
+      path: '/editProject',
+      name: 'editProject',
+      component: () => import('@/views/Editprojectview.vue'),
+      meta: { require: true },
     }
   ],
 })
