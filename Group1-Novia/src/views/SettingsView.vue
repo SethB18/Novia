@@ -200,7 +200,11 @@
 
 <script setup>
 import { reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
+
+const router = useRouter()
+const BASE_URL = 'https://novia2.csm.linkpc.net'
 
 // --- Password Change State ---
 const passwordForm = reactive({
@@ -264,21 +268,26 @@ const handlePasswordChange = async () => {
 
     isLoading.value = true
     successMessage.value = ''
+    errors.current = '' 
 
     try {
-        const response = await fetch('http://novia2.csm.linkpc.net/api/profile/change-pass', {
+        const response = await fetch(`${BASE_URL}/api/profile/change-pass`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
             body: JSON.stringify({
                 current_password: passwordForm.current,
                 new_password: passwordForm.new
             })
         })
 
-        const data = await response.json()
+        const data = await response.json().catch(() => ({}))
 
-        if (!response.ok) throw new Error(data.message || 'Failed to update password')
-
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to update password')
+        }
         successMessage.value = 'Password updated successfully!'
         passwordForm.current = ''
         passwordForm.new = ''
@@ -305,20 +314,28 @@ const handleDeleteAccount = async () => {
     deleteError.value = ''
 
     try {
-        const response = await fetch('http://novia2.csm.linkpc.net/api/profile/delete-acc', {
+        const response = await fetch(`${BASE_URL}/api/profile/delete-acc`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
         })
 
-        const data = await response.json()
+        const data = await response.json().catch(() => ({}))
 
-        if (!response.ok) throw new Error(data.message || 'Failed to delete account')
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to delete account')
+        }
 
-        // Success - redirect to login
-        window.location.href = '/login'
+        // Success - Clear local storage if you have a token
+        localStorage.clear() 
+        
+        // Redirect to login
+        router.push('/login')
 
     } catch (err) {
-        deleteError.value = err.message || 'Failed to delete account. Please try again.'
+        deleteError.value = err.message
     } finally {
         isDeleting.value = false
     }
