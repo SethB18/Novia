@@ -246,7 +246,7 @@ body,
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #2d0060, #6a0dad, #9b30ff);
+  background: #0f172a;
   background-attachment: fixed;
   background-size: cover;
   font-family: "Poppins", sans-serif;
@@ -258,10 +258,10 @@ body,
   max-width: 420px;
   padding: 2.5rem;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.08);
+  background: #1e293b;
   backdrop-filter: blur(18px);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 10px 40px rgba(80, 0, 160, 0.35);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
   animation: fadeIn 0.5s ease;
 }
 
@@ -441,7 +441,7 @@ body,
 }
 
 .login-link {
-  color: #c77dff;
+  color: #6366f1;
   font-weight: 600;
   text-decoration: none;
   transition: color 0.2s;
