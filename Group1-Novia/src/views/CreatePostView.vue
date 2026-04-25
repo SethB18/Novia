@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted , computed} from 'vue'
 import { usePostStore } from '@/stores/post'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useCategoryStore } from '../stores/category'
 import BaseModal from '../components/BaseModal.vue'
 import {useAuthStores} from "@/stores/auth";
@@ -9,6 +9,7 @@ import {useAuthStores} from "@/stores/auth";
 const emit = defineEmits(['post-created'])
 const auth = useAuthStores()
 const route = useRoute()
+const router = useRouter()
 const postStore = usePostStore()
 const categoryStore = useCategoryStore()
 
@@ -18,14 +19,25 @@ const openModal = () => {
   showModal.value = true
 }
 
+const getReturnPath = () => {
+  const from = route.query.from
+  if (typeof from === 'string' && from.trim()) return from
+  return '/'
+}
+
 const closeModal = () => {
   showModal.value = false
+  if (isEditing.value) {
+    router.push(getReturnPath())
+  }
 }
 
 const content = ref('')
 const image = ref<File | null>(null)
 const imagePreview = ref<string | null>(null)
 const loading = ref(false)
+const submitError = ref('')
+const submitSuccess = ref('')
 
 const emojis = ['😀','😂','😍','🔥','👍','❤️','🎉','😎']
 const showEmoji = ref(false)
@@ -61,6 +73,9 @@ onMounted(async () => {
     if (post) {
       content.value = post.text || ''
       imagePreview.value = post.image || null
+      selectedCategories.value = Array.isArray(post.categories)
+        ? post.categories.map((cat: any) => Number(cat.id)).filter(Boolean)
+        : []
       autoResize()
       openModal()
     }
@@ -102,11 +117,13 @@ const submitPost = async () => {
   if (!content.value && !image.value) return
 
   loading.value = true
+  submitError.value = ''
+  submitSuccess.value = ''
 
   try {
     const formData = new FormData()
     formData.append('text', content.value)
-    formData.append('categories', JSON.stringify(selectedCategories.value))
+    formData.append('category_ids', JSON.stringify(selectedCategories.value))
 
     if (image.value) {
       formData.append('image', image.value)
@@ -114,8 +131,10 @@ const submitPost = async () => {
 
     if (isEditing.value && editingPostId.value) {
       await postStore.updatePost(editingPostId.value, formData)
+      submitSuccess.value = 'Post updated successfully. Redirecting...'
     } else {
       await postStore.addPost(formData)
+      submitSuccess.value = 'Post created successfully.'
     }
 
     content.value = ''
@@ -124,9 +143,19 @@ const submitPost = async () => {
     selectedCategories.value = []
     showEmoji.value = false
 
-    closeModal()
     emit('post-created')
+    if (isEditing.value) {
+      setTimeout(() => {
+        closeModal()
+      }, 900)
+    } else {
+      closeModal()
+    }
 
+  } catch (error: any) {
+    submitError.value =
+      error?.response?.data?.message ||
+      'Failed to update post. Please try again.'
   } finally {
     loading.value = false
   }
@@ -212,10 +241,13 @@ const submitPost = async () => {
               @click="submitPost"
               :disabled="loading || (!content && !image)"
             >
-              {{ loading ? 'Posting...' : 'Post' }}
+              {{ loading ? (isEditing ? 'Updating...' : 'Posting...') : (isEditing ? 'Update' : 'Post') }}
             </button>
 
           </div>
+
+          <p v-if="submitSuccess" class="success-text mt-2">{{ submitSuccess }}</p>
+          <p v-if="submitError" class="error-text mt-2">{{ submitError }}</p>
 
           <!-- EMOJI -->
           <div v-if="showEmoji" class="emoji-box">
@@ -338,5 +370,15 @@ const submitPost = async () => {
 .emoji {
   cursor: pointer;
   font-size: 18px;
+}
+
+.error-text {
+  color: #dc2626;
+  font-size: 0.9rem;
+}
+
+.success-text {
+  color: #16a34a;
+  font-size: 0.9rem;
 }
 </style>

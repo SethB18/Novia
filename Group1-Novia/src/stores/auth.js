@@ -101,9 +101,12 @@ export const useAuthStores = defineStore('auth', () => {
       }
     } catch (error) {
       console.error('Failed to fetch user data:', error)
-      // If token is invalid, clear it
-      token.value = null
-      localStorage.removeItem('token')
+      // Only clear the session when the server explicitly rejects the token (401).
+      // Network errors, 500s, or CORS issues should NOT log the user out.
+      if (error.response?.status === 401) {
+        token.value = null
+        localStorage.removeItem('token')
+      }
     }
   }
 

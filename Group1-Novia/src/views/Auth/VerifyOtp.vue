@@ -163,7 +163,7 @@ async function handleSubmit() {
   }
   isLoading.value = true
   try {
-    await auth.VerifyOtp(email.value, otpValue.value)
+    await auth.verifyOtp(email.value, otpValue.value)
     notifier.success('OTP verified!')
     router.push({ name: 'reset-password', query: { email: email.value, otp: otpValue.value } })
   } catch (err) {
@@ -178,7 +178,7 @@ async function handleSubmit() {
 async function handleResend() {
   if (resendCooldown.value > 0) return
   try {
-    await auth.ForgotPassword(email.value)
+    await auth.forgotPassword(email.value)
     notifier.success('A new OTP has been sent to your email.')
     otpDigits.value = ['', '', '', '', '', '']
     nextTick(() => otpRefs.value[0]?.focus())

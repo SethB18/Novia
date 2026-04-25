@@ -202,9 +202,9 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
+import api from '@/api/http'
 
 const router = useRouter()
-const BASE_URL = 'https://novia2.csm.linkpc.net'
 
 // --- Password Change State ---
 const passwordForm = reactive({
@@ -271,21 +271,16 @@ const handlePasswordChange = async () => {
     errors.current = '' 
 
     try {
-        const response = await fetch(`${BASE_URL}/api/profile/change-pass`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                current_password: passwordForm.current,
-                new_password: passwordForm.new
-            })
+        const params = new URLSearchParams({
+            old_pass: passwordForm.current,
+            new_pass: passwordForm.new,
+            new_pass_confirmation: passwordForm.confirm
         })
+        const response = await api.put('/api/profile/change-pass', params)
 
-        const data = await response.json().catch(() => ({}))
+        const data = response?.data ?? {}
 
-        if (!response.ok) {
+        if (!data.result) {
             throw new Error(data.message || 'Failed to update password')
         }
         successMessage.value = 'Password updated successfully!'
@@ -294,7 +289,7 @@ const handlePasswordChange = async () => {
         passwordForm.confirm = ''
 
     } catch (err) {
-        errors.current = err.message
+        errors.current = err?.response?.data?.message || err.message || 'Failed to update password'
     } finally {
         isLoading.value = false
     }
@@ -314,17 +309,11 @@ const handleDeleteAccount = async () => {
     deleteError.value = ''
 
     try {
-        const response = await fetch(`${BASE_URL}/api/profile/delete-acc`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-        })
+        const response = await api.delete('/api/profile/delete-acc')
 
-        const data = await response.json().catch(() => ({}))
+        const data = response?.data ?? {}
 
-        if (!response.ok) {
+        if (!data.result) {
             throw new Error(data.message || 'Failed to delete account')
         }
 
@@ -335,7 +324,7 @@ const handleDeleteAccount = async () => {
         router.push('/login')
 
     } catch (err) {
-        deleteError.value = err.message
+        deleteError.value = err?.response?.data?.message || err.message || 'Failed to delete account'
     } finally {
         isDeleting.value = false
     }
@@ -343,346 +332,242 @@ const handleDeleteAccount = async () => {
 </script>
 
 <style scoped>
-/* --- Page Layout --- */
+/* --- Layout --- */
 .settings-page-wrapper {
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    background: radial-gradient(circle at top left, #1a1d29, #0f1016);
+    align-items: flex-start;
+    padding: 2.5rem 1.5rem;
+    background: #f0f2f5;
 }
 
 .settings-page {
     width: 100%;
-    width: 600px;
-    animation: fadeIn 0.5s ease-out;
+    max-width: 620px;
+    animation: fadeIn 0.4s ease-out;
 }
 
-
-.page-header {
-    display: flex;
-    align-items: center;
-}
+.page-header { display: flex; align-items: center; }
 
 .header-icon {
-    width: 56px;
-    height: 56px;
+    width: 52px;
+    height: 52px;
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    border-radius: 16px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.75rem;
-    color: white;
-    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+    font-size: 1.6rem;
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(99,102,241,0.28);
+    flex-shrink: 0;
 }
 
 .page-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 700;
-    color: #f8fafc;
+    color: #1e293b;
     margin: 0;
     letter-spacing: -0.02em;
 }
 
-.page-subtitle {
-    color: #94a3b8;
-    margin: 0;
-    font-size: 1rem;
-}
+.page-subtitle { color: #64748b; margin: 0; font-size: 0.9rem; }
 
-/* --- Glass Cards --- */
+/* --- Cards --- */
 .glass-card {
-    background: rgba(30, 41, 59, 0.6);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
     padding: 2rem;
-    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: box-shadow 0.2s;
 }
+.glass-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); }
+.glass-card.border-danger { border-color: rgba(239,68,68,0.3); }
+.glass-card.border-danger:hover { box-shadow: 0 4px 16px rgba(239,68,68,0.08); }
 
-.glass-card:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-.glass-card.border-danger {
-    border-color: rgba(239, 68, 68, 0.3);
-}
-
-.glass-card.border-danger:hover {
-    border-color: rgba(239, 68, 68, 0.5);
-    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.1);
-}
-
-/* --- Section Headers --- */
+/* --- Section headers --- */
 .section-header {
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 1.75rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .icon-box {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
+    font-size: 1.2rem;
+    flex-shrink: 0;
 }
-
 .icon-box.primary {
-    background: linear-gradient(135deg, #3b82f6, #6366f1);
-    color: white;
-    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(99,102,241,0.25);
 }
-
 .icon-box.danger {
     background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
-    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(239,68,68,0.25);
 }
 
-.section-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #f1f5f9;
-    margin: 0;
-}
-.section-desc {
-    color: #64748b;
-    font-size: 0.875rem;
-    margin: 0.25rem 0 0;
-}
+.section-title { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin: 0; }
+.section-desc  { color: #64748b; font-size: 0.86rem; margin: 0.2rem 0 0; }
 
 /* --- Forms --- */
-.settings-form {
-    max-width: 600px;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
+.settings-form { max-width: 100%; }
+.form-group    { margin-bottom: 1.4rem; }
 
 .form-label {
     display: block;
-    color: #cbd5e1;
-    font-weight: 500;
+    color: #374151;
+    font-weight: 600;
     margin-bottom: 0.5rem;
     font-size: 0.875rem;
 }
 
-.input-group {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
+.input-group { position: relative; display: flex; align-items: center; }
 
-.input-icon {
-    position: absolute;
-    left: 1rem;
-    color: #64748b;
-    z-index: 10;
-}
+.input-icon { position: absolute; left: 1rem; color: #94a3b8; z-index: 10; }
 
 .form-control {
     width: 100%;
-    padding: 0.875rem 1rem 0.875rem 2.75rem;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.85rem 1rem 0.85rem 2.75rem;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
     border-radius: 12px;
-    color: #f1f5f9;
-    font-size: 0.9375rem;
-    transition: all 0.2s ease;
+    color: #1e293b;
+    font-size: 0.93rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
 }
-
 .form-control:focus {
     outline: none;
     border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
 }
-
-.form-control.is-invalid {
-    border-color: #ef4444;
-    background: rgba(239, 68, 68, 0.05);
-}
+.form-control.is-invalid { border-color: #ef4444; background: #fff5f5; }
 
 .toggle-btn {
     position: absolute;
     right: 0.75rem;
     background: none;
     border: none;
-    color: #64748b;
+    color: #94a3b8;
     cursor: pointer;
-    padding: 0.5rem;
+    padding: 0.4rem;
     transition: color 0.2s;
 }
+.toggle-btn:hover { color: #6366f1; }
 
-.toggle-btn:hover {
-    color: #94a3b8;
-}
+.error-text { display: block; color: #ef4444; font-size: 0.85rem; margin-top: 0.4rem; }
 
-.error-text {
-    display: block;
-    color: #f87171;
-    font-size: 0.875rem;
-    margin-top: 0.5rem;
-}
+.form-hint { display: block; color: #94a3b8; font-size: 0.8rem; margin-top: 0.4rem; }
+.form-hint i { margin-right: 0.2rem; }
 
-.form-hint {
-    display: block;
-    color: #64748b;
-    font-size: 0.8125rem;
-    margin-top: 0.5rem;
-}
-
-.form-hint i {
-    margin-right: 0.25rem;
-}
-
-.divider {
-    border: none;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.06);
-    margin: 1.5rem 0;
-}
+.divider { border: none; height: 1px; background: #f1f5f9; margin: 1.5rem 0; }
 
 /* --- Buttons --- */
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.875rem 1.75rem;
-    border-radius: 12px;
+    padding: 0.8rem 1.75rem;
+    border-radius: 11px;
     font-weight: 600;
-    font-size: 0.9375rem;
+    font-size: 0.93rem;
     border: none;
     cursor: pointer;
-    transition: all 0.2s ease;
+    font-family: inherit;
+    transition: all 0.2s;
 }
-
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .btn-primary {
-    background: linear-gradient(135deg, #3b82f6, #6366f1);
-    color: white;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(99,102,241,0.25);
 }
-
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 8px 20px rgba(99,102,241,0.35);
 }
 
-.btn-glow {
-    position: relative;
-}
-
+.btn-glow { position: relative; }
 .btn-glow::after {
     content: '';
     position: absolute;
     inset: -2px;
-    background: linear-gradient(135deg, #3b82f6, #6366f1);
-    border-radius: 14px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 13px;
     opacity: 0;
     z-index: -1;
-    filter: blur(12px);
+    filter: blur(10px);
     transition: opacity 0.3s;
 }
-
-.btn-glow:hover::after {
-    opacity: 0.4;
-}
+.btn-glow:hover::after { opacity: 0.35; }
 
 .btn-outline-danger {
     background: transparent;
-    border: 1px solid rgba(239, 68, 68, 0.5);
-    color: #f87171;
+    border: 1.5px solid rgba(239,68,68,0.4);
+    color: #dc2626;
 }
-
 .btn-outline-danger:hover:not(:disabled) {
-    background: rgba(239, 68, 68, 0.1);
+    background: #fef2f2;
     border-color: #ef4444;
-    color: #ef4444;
 }
 
-.btn-glow-danger:hover {
-    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
-}
+.btn-glow-danger:hover { box-shadow: 0 0 16px rgba(239,68,68,0.25); }
 
-.btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: #cbd5e1;
-}
-
-.btn-secondary:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.15);
-}
+.btn-secondary { background: #f1f5f9; color: #374151; }
+.btn-secondary:hover:not(:disabled) { background: #e2e8f0; }
 
 .btn-danger {
     background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
+    color: #fff;
 }
-
 .btn-danger:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+    box-shadow: 0 8px 20px rgba(239,68,68,0.3);
 }
 
-.form-actions {
-    margin-top: 2rem;
-    display: flex;
-    justify-content: flex-end;
-}
+.form-actions { margin-top: 1.75rem; display: flex; justify-content: flex-end; }
 
 /* --- Danger Zone --- */
-.danger-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
+.danger-content { display: flex; flex-direction: column; gap: 1.5rem; }
 
 .danger-notice {
-    background: rgba(239, 68, 68, 0.08);
-    border: 1px solid rgba(239, 68, 68, 0.2);
+    background: #fff5f5;
+    border: 1px solid rgba(239,68,68,0.2);
     border-radius: 12px;
     padding: 1.25rem;
 }
-
-.danger-notice h3 {
-    color: #f87171;
-    font-size: 1rem;
-    margin: 0 0 0.5rem;
-}
-
-.danger-notice p {
-    color: #94a3b8;
-    margin: 0;
-    font-size: 0.875rem;
-    line-height: 1.6;
-}
+.danger-notice h3 { color: #dc2626; font-size: 1rem; margin: 0 0 0.5rem; }
+.danger-notice p  { color: #64748b; margin: 0; font-size: 0.875rem; line-height: 1.6; }
 
 /* --- Alerts --- */
 .alert-success {
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    color: #4ade80;
-    padding: 1rem;
-    border-radius: 12px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #16a34a;
+    padding: 0.875rem 1rem;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
 }
 
 .alert-error {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #f87171;
+    background: #fff5f5;
+    border: 1px solid #fecaca;
+    color: #dc2626;
     padding: 0.875rem;
     border-radius: 8px;
     display: flex;
@@ -695,8 +580,8 @@ const handleDeleteAccount = async () => {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(8px);
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -705,84 +590,67 @@ const handleDeleteAccount = async () => {
 }
 
 .modal-content {
+    background: #fff;
+    border-radius: 18px;
     width: 100%;
-    max-width: 480px;
-    animation: modalSlide 0.3s ease-out;
+    max-width: 460px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    animation: modalSlide 0.25s ease-out;
+    overflow: hidden;
 }
 
 @keyframes modalSlide {
-    from {
-        opacity: 0;
-        transform: scale(0.95) translateY(-20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
+    from { opacity: 0; transform: scale(0.95) translateY(-16px); }
+    to   { opacity: 1; transform: scale(1)   translateY(0); }
 }
 
 .modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
 }
-
-.modal-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin: 0;
-}
+.modal-title { font-size: 1.05rem; font-weight: 700; margin: 0; color: #1e293b; }
 
 .btn-close {
-    background: none;
+    background: #f1f5f9;
     border: none;
+    border-radius: 8px;
     color: #64748b;
-    font-size: 1.25rem;
+    font-size: 1rem;
     cursor: pointer;
-    padding: 0.5rem;
-    transition: color 0.2s;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
 }
+.btn-close:hover { background: #e2e8f0; color: #1e293b; }
 
-.btn-close:hover {
-    color: #f1f5f9;
-}
+.modal-body { padding: 1.5rem; }
 
-.modal-body {
-    padding: 1.5rem;
-}
+.warning-text { color: #374151; line-height: 1.6; margin-bottom: 1.5rem; font-size: 0.9rem; }
 
-.warning-text {
-    color: #cbd5e1;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-}
-
-.confirmation-input label {
-    display: block;
-    color: #94a3b8;
-    font-size: 0.875rem;
-    margin-bottom: 0.75rem;
-}
-
+.confirmation-input label { display: block; color: #64748b; font-size: 0.875rem; margin-bottom: 0.6rem; }
 .confirmation-input input {
     width: 100%;
-    padding: 0.875rem 1rem;
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: #f1f5f9;
-    font-size: 0.9375rem;
+    padding: 0.8rem 1rem;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    color: #1e293b;
+    font-size: 0.9rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
+    font-family: inherit;
+    box-sizing: border-box;
 }
-
 .confirmation-input input:focus {
     outline: none;
     border-color: #ef4444;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+    box-shadow: 0 0 0 3px rgba(239,68,68,0.12);
 }
 
 .modal-footer {
@@ -790,39 +658,18 @@ const handleDeleteAccount = async () => {
     gap: 0.75rem;
     justify-content: flex-end;
     padding: 1rem 1.5rem 1.5rem;
+    border-top: 1px solid #f1f5f9;
 }
 
 /* --- Transitions --- */
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-    transition: all 0.3s ease;
-}
+.slide-fade-enter-active, .slide-fade-leave-active { transition: all 0.25s ease; }
+.slide-fade-enter-from, .slide-fade-leave-to { opacity: 0; transform: translateY(-8px); }
 
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-    opacity: 0;
-    transform: translateY(-10px);
-}
-
-.modal-enter-active,
-.modal-leave-active {
-    transition: opacity 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-    opacity: 0;
-}
+.modal-enter-active, .modal-leave-active { transition: opacity 0.25s ease; }
+.modal-enter-from, .modal-leave-to { opacity: 0; }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 </style>

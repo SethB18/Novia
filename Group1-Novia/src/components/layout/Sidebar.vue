@@ -62,6 +62,27 @@
           </ul>
         </div>
 
+        <!-- Help & Info -->
+        <div class="nav-group">
+          <span class="nav-label">Help & Info</span>
+          <ul>
+            <li v-for="item in helpItems" :key="item.key">
+              <router-link
+                :to="item.to"
+                class="nav-link"
+                :class="{ active: activeItem === item.key }"
+                @click="setActive(item.key)"
+              >
+                <span class="link-icon">
+                  <i :class="['bi', item.icon]"></i>
+                </span>
+                <span class="link-text">{{ item.label }}</span>
+                <span v-if="activeItem === item.key" class="active-indicator"></span>
+              </router-link>
+            </li>
+          </ul>
+        </div>
+
         <!-- Logout -->
         <div class="nav-group bottom">
           <span class="nav-label">Account</span>
@@ -79,12 +100,17 @@
 </template>
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useAuthStores } from '@/stores/auth'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   isOpen: Boolean
 })
 
 const emit = defineEmits(['close'])
+
+const auth = useAuthStores()
+const router = useRouter()
 
 const activeItem = ref('home')
 const windowWidth = ref(window.innerWidth)
@@ -93,15 +119,19 @@ const isDesktop = computed(() => windowWidth.value >= 992)
 
 /* Menu */
 const menuItems = [
-  { key: 'home', label: 'Home', icon: 'bi-house-door', to: '/' },
-  { key: 'about', label: 'About', icon: 'bi-people', to: '/about' },
-  { key: 'contact', label: 'Contact', icon: 'bi-envelope', to: '/contact' },
+  { key: 'home',     label: 'Home',    icon: 'bi-house-door', to: '/' },
+  { key: 'messages', label: 'Message', icon: 'bi-chat-dots',  to: '/messages' },
 ]
 
 const settingsItems = [
-  { key: 'settings', label: 'Settings', icon: 'bi-gear', to: '/settings' },
-  { key: 'messages', label: 'Message', icon: 'bi-chat-dots', to: '/messages' },
-  { key: 'privacy', label: 'Privacy & Security', icon: 'bi-shield-check', to: '/privacy' },
+  { key: 'settings', label: 'Settings',          icon: 'bi-gear',         to: '/settings' },
+  { key: 'privacy',  label: 'Privacy & Security', icon: 'bi-shield-check', to: '/privacy' },
+]
+
+const helpItems = [
+  { key: 'about', label: 'About Novia', icon: 'bi-info-circle',    to: '/about' },
+  { key: 'faq',   label: 'FAQ',         icon: 'bi-question-circle', to: '/faq' },
+  { key: 'help',  label: 'Help Center', icon: 'bi-life-preserver',  to: '/help' },
 ]
 
 /* Actions */
@@ -110,9 +140,14 @@ const setActive = (key) => {
   if (!isDesktop.value) emit('close')
 }
 
-const handleLogout = () => {
-  console.log('Logout...')
-  // add real logout logic
+const handleLogout = async () => {
+  try {
+    await auth.logout()
+  } catch {
+    // even if the API call fails, clear local state
+    localStorage.removeItem('token')
+  }
+  router.push('/login')
 }
 
 /* Resize listener */

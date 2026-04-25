@@ -16,9 +16,9 @@
                 <div class="search-wrapper" ref="searchRef">
                     <div class="search-container">
                         <i class="bi bi-search search-icon"></i>
-                        <input 
-                            type="text" 
-                            placeholder="Search users..." 
+                        <input
+                            type="text"
+                            placeholder="Search posts & people..."
                             class="search-input"
                             v-model="searchQuery"
                             @input="handleSearch"
@@ -56,12 +56,6 @@
             <!-- Right: Actions -->
             <div class="navbar-section right">
                 <div class="nav-actions">
-                    <!-- Notifications -->
-                    <button class="action-btn" @click="toggleNotifications">
-                        <i class="bi bi-bell-fill"></i>
-                        <span class="notification-dot"></span>
-                    </button>
-
                     <!-- Messages -->
                     <button class="action-btn" @click="toggleMessages">
                         <i class="bi bi-chat-dots-fill"></i>
@@ -80,10 +74,6 @@
                             <router-link to="/profile" class="dropdown-item" @click="closeDropdown">
                                 <i class="bi bi-person-circle"></i>
                                 <span>My Profile</span>
-                            </router-link>
-                            <router-link to="/profileDetail" class="dropdown-item" @click="closeDropdown">
-                                <i class="bi bi-person-fill"></i>
-                                <span>Profile Details</span>
                             </router-link>
                             <router-link to="/settings" class="dropdown-item" @click="closeDropdown">
                                 <i class="bi bi-gear"></i>
@@ -106,10 +96,12 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStores } from '@/stores/auth'
+import { usePostStore } from '@/stores/post'
 import api from '@/api/http'
 
 const router = useRouter()
 const auth = useAuthStores()
+const postStore = usePostStore()
 
 // Reactive data
 const unreadMessages = ref(3)
@@ -127,11 +119,6 @@ const userAvatar = computed(() => auth.user?.avatar || 'https://ui-avatars.com/a
 const userName = computed(() => auth.user?.full_name || 'User')
 
 // Functions
-const toggleNotifications = () => {
-    // TODO: Implement notifications panel
-    console.log('Toggle notifications')
-}
-
 const toggleMessages = () => {
     router.push('/messages')
 }
@@ -152,42 +139,47 @@ const logout = () => {
 
 const handleSearch = async (e) => {
     const query = e.target.value.trim()
-    
-    // Clear previous timeout
+
     if (searchTimeout) clearTimeout(searchTimeout)
-    
+
     if (!query) {
-        searchResults.value = []
+        searchResults.value   = []
         showSearchResults.value = false
+        postStore.searchQuery = ''
+        postStore.searchUsers = []
+        postStore.fetchPosts('')
         return
     }
-    
-    // Debounce search request
+
     searchTimeout = setTimeout(async () => {
+        isSearching.value = true
         try {
-            isSearching.value = true
-            const res = await api.get('/api/users/search', {
-                params: { q: query }
-            })
-            
-            if (res.data.result && res.data.data) {
-                searchResults.value = res.data.data
-            } else {
-                searchResults.value = []
-            }
+            postStore.searchQuery = query
+            await Promise.all([
+                postStore.fetchPosts(query),
+                api.get('/api/users/search', { params: { q: query } }).then(res => {
+                    const users = res.data.result ? (res.data.data ?? []) : []
+                    searchResults.value     = users   // dropdown
+                    postStore.searchUsers   = users   // feed people section
+                }),
+            ])
         } catch (error) {
             console.error('Search error:', error)
-            searchResults.value = []
+            searchResults.value   = []
+            postStore.searchUsers = []
         } finally {
             isSearching.value = false
         }
-    }, 500)
+    }, 400)
 }
 
 const clearSearch = () => {
-    searchQuery.value = ''
-    searchResults.value = []
+    searchQuery.value       = ''
+    searchResults.value     = []
     showSearchResults.value = false
+    postStore.searchQuery   = ''
+    postStore.searchUsers   = []
+    postStore.fetchPosts('')
 }
 
 // Click outside to close dropdown
@@ -446,16 +438,6 @@ onUnmounted(() => {
     transform: translateY(-2px);
 }
 
-.notification-dot {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 8px;
-    height: 8px;
-    background: #ef4444;
-    border-radius: 50%;
-    border: 2px solid white;
-}
 
 .badge {
     position: absolute;

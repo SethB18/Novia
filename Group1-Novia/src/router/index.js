@@ -12,7 +12,7 @@ import Editprofileinfoview from '@/views/Editprofileinfoview.vue'
 import Editeducationview from '@/views/Editeducationview.vue'
 import Editprojectview from '@/views/Editprojectview.vue'
 import SettingsView from '@/views/SettingsView.vue'
-import AboutView from '../views/AboutView.vue'
+import PrivacySecurityView from '@/views/PrivacySecurityView.vue'
 import MessagePanelView from '@/views/MessagePanelView.vue'
 
 const router = createRouter({
@@ -65,6 +65,12 @@ const router = createRouter({
       meta: { require: true },
     },
     {
+      path: '/profile/:id',
+      name: 'profileById',
+      component: () => import('@/views/ProfileDetailsView.vue'),
+      meta: { require: true },
+    },
+    {
       path: '/profile',
       name: 'profile',
       component: MyProfileView,
@@ -89,11 +95,6 @@ const router = createRouter({
       meta: { require: true },
     },
     {
-      path: '/:pathMatch(.*)*',
-      name: 'NotFound',
-      component: () => import('../views/ForbiddenView.vue'),
-    },
-    {
       path: '/settings',
       name: 'settings',
       component: () => import('@/views/SettingsView.vue'),
@@ -112,15 +113,30 @@ const router = createRouter({
       meta: { require: true },
     },
     {
-      path: '/about',
-      name: 'about',
-      component: () => import('@/views/AboutView.vue'),
+      path: '/privacy',
+      name: 'privacy',
+      component: PrivacySecurityView,
       meta: { require: true },
-    }
+    },
+    {
+      path: '/help',
+      name: 'help',
+      component: () => import('../views/HelpView.vue'),
+    },
+    {
+      path: '/faq',
+      name: 'faq',
+      component: () => import('../views/FaqView.vue'),
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: () => import('../views/ForbiddenView.vue'),
+    },
   ],
 })
 
-router.beforeEach((to, from) => {
+router.beforeEach((to) => {
   const auth = useAuthStores()
 
   if (!auth.isLoggedIn && to.meta.require) {

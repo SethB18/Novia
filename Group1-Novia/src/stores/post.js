@@ -5,9 +5,11 @@ import api from '@/api/http'
 export const usePostStore = defineStore('post', () => {
 
   // ── State ──────────────────────────────────────────────
-  const posts    = ref([])   // GET /api/posts  → res.data.data[]
-  const post     = ref(null) // GET /api/posts/:id → res.data.data
-  const ownPosts = ref([])   // reserved for profile "All Post" tab
+  const posts       = ref([])   // GET /api/posts  → res.data.data[]
+  const post        = ref(null) // GET /api/posts/:id → res.data.data
+  const ownPosts    = ref([])   // reserved for profile "All Post" tab
+  const searchQuery = ref('')   // current search term — watched by HomeView for scroll-to-top
+  const searchUsers = ref([])   // users matching the current search — shown in HomeView feed
 
   // ── Pagination ─────────────────────────────────────────
   // Shape from API response:
@@ -239,83 +241,7 @@ export const usePostStore = defineStore('post', () => {
     }
   }
 
-  // ── GET /api/users/:userId/posts ──────────────────────
-  // Fetch all posts by a specific user ID with pagination
-  // params: { page?, per_page? }
-  //
-  // Response:
-  // {
-  //   result: true, code: 1, message: "Get user posts successfully.",
-  //   data: [                          ← array lives here
-  //     { id, text, image, attachments, created_at, creator, categories }
-  //   ],
-  //   paginate: { has_page, on_first_page, has_more_pages,
-  //               first_item, last_item, total, current_page, last_page }
-  // }
-  async function fetchPostsByUserId(userId, page = 1, perPage = 20) {
-    try {
-      const res = await api.get(`/api/users/${userId}/posts`, {
-        params: {
-          page,
-          per_page: perPage,
-        },
-      })
-
-      // Store in posts array (could also create a separate userPosts array)
-      posts.value = res.data.data ?? []
-
-      // Update pagination
-      const p = res.data.paginate ?? {}
-      pagination.has_page       = p.has_page       ?? false
-      pagination.on_first_page  = p.on_first_page  ?? true
-      pagination.has_more_pages = p.has_more_pages ?? false
-      pagination.first_item     = p.first_item     ?? 1
-      pagination.last_item      = p.last_item      ?? 0
-      pagination.total          = p.total          ?? 0
-      pagination.current_page   = p.current_page   ?? 1
-      pagination.last_page      = p.last_page      ?? 1
-
-    } catch (error) {
-      console.error('Failed to fetch posts by user ID:', error)
-      throw error
-    }
-  }
-
-  // ── GET /api/users/:userId/posts (with append for pagination) ─────────────────
-  async function fetchPostsByUserIdAppend(userId, page = 1, perPage = 20) {
-    try {
-      const res = await api.get(`/api/users/${userId}/posts`, {
-        params: {
-          page,
-          per_page: perPage,
-        },
-      })
-
-      // APPEND posts instead of replacing for pagination
-      if (page > 1) {
-        posts.value = [...posts.value, ...(res.data.data ?? [])]
-      } else {
-        posts.value = res.data.data ?? []
-      }
-
-      // Update pagination
-      const p = res.data.paginate ?? {}
-      pagination.has_page       = p.has_page       ?? false
-      pagination.on_first_page  = p.on_first_page  ?? true
-      pagination.has_more_pages = p.has_more_pages ?? false
-      pagination.first_item     = p.first_item     ?? 1
-      pagination.last_item      = p.last_item      ?? 0
-      pagination.total          = p.total          ?? 0
-      pagination.current_page   = p.current_page   ?? 1
-      pagination.last_page      = p.last_page      ?? 1
-
-    } catch (error) {
-      console.error('Failed to fetch posts by user ID append:', error)
-      throw error
-    }
-  }
-
-  // ── PUT /api/posts/:id ──────────────────────────────────
+  // ── UPDATE /api/posts/:id ───────────────────────────────
   // payload: FormData { text, image?, attachments?, categories[]? }
   //
   // Response:
@@ -323,7 +249,7 @@ export const usePostStore = defineStore('post', () => {
   //   data: { id, text, image, attachments, created_at, creator, categories } }
   async function updatePost(id, payload) {
     try {
-      const res = await api.put(`/api/posts/${id}`, payload, {
+      const res = await api.post(`/api/posts/${id}`, payload, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       if (res.data.result) {
@@ -381,13 +307,13 @@ export const usePostStore = defineStore('post', () => {
     post,
     ownPosts,
     pagination,
+    searchQuery,
+    searchUsers,
     // actions
     fetchPosts,
     fetchPostsAppend,
     fetchOwnPosts,
     fetchOwnPostsAppend,
-    fetchPostsByUserId,
-    fetchPostsByUserIdAppend,
     addPost,
     updatePost,
     fetchPostById,

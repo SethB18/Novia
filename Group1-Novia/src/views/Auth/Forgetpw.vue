@@ -84,7 +84,7 @@ async function handleSubmit() {
   if (!validateEmail()) return
   isLoading.value = true
   try {
-    await auth.ForgotPassword(email.value)
+    await auth.forgotPassword(email.value)
     notifier.success('OTP code sent! Please check your inbox.')
     router.push({ name: 'verify-otp', query: { email: email.value } })
   } catch (err) {
