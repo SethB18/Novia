@@ -29,7 +29,7 @@
                 :to="item.to"
                 class="nav-link"
                 :class="{ active: activeItem === item.key }"
-                @click="setActive(item.key)"
+                @click="setActive()"
               >
                 <span class="link-icon">
                   <i :class="['bi', item.icon]"></i>
@@ -50,7 +50,7 @@
                 :to="item.to"
                 class="nav-link"
                 :class="{ active: activeItem === item.key }"
-                @click="setActive(item.key)"
+                @click="setActive()"
               >
                 <span class="link-icon">
                   <i :class="['bi', item.icon]"></i>
@@ -71,7 +71,7 @@
                 :to="item.to"
                 class="nav-link"
                 :class="{ active: activeItem === item.key }"
-                @click="setActive(item.key)"
+                @click="setActive()"
               >
                 <span class="link-icon">
                   <i :class="['bi', item.icon]"></i>
@@ -101,7 +101,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useAuthStores } from '@/stores/auth'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const props = defineProps({
   isOpen: Boolean
@@ -111,10 +111,9 @@ const emit = defineEmits(['close'])
 
 const auth = useAuthStores()
 const router = useRouter()
+const route  = useRoute()
 
-const activeItem = ref('home')
 const windowWidth = ref(window.innerWidth)
-
 const isDesktop = computed(() => windowWidth.value >= 992)
 
 /* Menu */
@@ -134,9 +133,16 @@ const helpItems = [
   { key: 'help',  label: 'Help Center', icon: 'bi-life-preserver',  to: '/help' },
 ]
 
-/* Actions */
-const setActive = (key) => {
-  activeItem.value = key
+const allItems = [...menuItems, ...settingsItems, ...helpItems]
+
+/* Derive active key directly from the current route — no manual tracking */
+const activeItem = computed(() => {
+  const match = allItems.find(item => item.to === route.path)
+  return match?.key ?? ''
+})
+
+/* On mobile, close the drawer after navigation */
+const setActive = () => {
   if (!isDesktop.value) emit('close')
 }
 
