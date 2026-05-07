@@ -7,7 +7,7 @@ export default {
     home: 'Home',
     message: 'Message',
     privacy: 'Privacy & Security',
-    about: 'About Novia',
+    about: 'About Connexion',
     faq: 'FAQ',
     help: 'Help Center',
     logout: 'Log Out',
@@ -40,7 +40,7 @@ export default {
     },
     register: {
       title: 'Create Account',
-      subtitle: 'Join the Novia community',
+      subtitle: 'Join the Connexion community',
       fullName: 'Full Name',
       email: 'Email',
       phone: 'Phone',
@@ -257,7 +257,7 @@ export default {
     },
     community: {
       title: 'Tech Community',
-      desc: 'Novia is a space where developers, designers, students, and tech professionals connect. Share posts, showcase your projects, discover what others are building, and grow your professional network — all in one place.',
+      desc: 'Connexion is a space where developers, designers, students, and tech professionals connect. Share posts, showcase your projects, discover what others are building, and grow your professional network — all in one place.',
       li0: 'Create a professional profile with CV & skills',
       li1: 'Share tech ideas, news, and projects',
       li2: 'Direct message anyone in the network',
@@ -265,7 +265,7 @@ export default {
     },
     jobs: {
       title: 'Jobs & Opportunities',
-      desc: 'Looking for your next role, freelance gig, or internship? Novia lets companies and recruiters post opportunities directly to the tech community. Upload your CV and let the right people find you.',
+      desc: 'Looking for your next role, freelance gig, or internship? Connexion lets companies and recruiters post opportunities directly to the tech community. Upload your CV and let the right people find you.',
       li0: 'Browse tech job postings',
       li1: 'Upload your resume / CV',
       li2: 'Showcase your portfolio and experience',
@@ -273,7 +273,7 @@ export default {
     },
     events: {
       title: 'Events & Meetups',
-      desc: 'Stay connected with the local tech scene. Novia surfaces hackathons, workshops, webinars, and networking events so you never miss a chance to learn, compete, or meet like-minded people.',
+      desc: 'Stay connected with the local tech scene. Connexion surfaces hackathons, workshops, webinars, and networking events so you never miss a chance to learn, compete, or meet like-minded people.',
       li0: 'Discover upcoming tech events',
       li1: 'Post and promote your own events',
       li2: 'Join hackathons and coding competitions',
@@ -298,7 +298,7 @@ export default {
   },
   faq: {
     title: 'Frequently Asked Questions',
-    subtitle: 'Quick answers to the most common questions about Novia.',
+    subtitle: 'Quick answers to the most common questions about Connexion.',
     footer: {
       title: "Didn't find your answer?",
       desc: 'Visit the Help Center for step-by-step guides on every feature.',
@@ -306,11 +306,11 @@ export default {
     },
     s0: {
       label: 'Getting Started',
-      q0: 'What is Novia?',
-      a0: 'Novia is a tech community platform where developers, designers, students, and tech professionals connect. You can share posts, find jobs, discover events, message others, and build a professional profile — all in one place.',
-      q1: 'Who can join Novia?',
-      a1: 'Anyone with a passion for technology. Whether you\'re a student, a freelancer, a professional, or a company looking to hire — Novia is open to everyone in the tech space.',
-      q2: 'Is Novia free to use?',
+      q0: 'What is Connexion?',
+      a0: 'Connexion is a tech community platform where developers, designers, students, and tech professionals connect. You can share posts, find jobs, discover events, message others, and build a professional profile — all in one place.',
+      q1: 'Who can join Connexion?',
+      a1: 'Anyone with a passion for technology. Whether you\'re a student, a freelancer, a professional, or a company looking to hire — Connexion is open to everyone in the tech space.',
+      q2: 'Is Connexion free to use?',
       a2: 'Yes. Creating an account and using all core features — posts, messaging, profiles, and the community feed — is completely free.',
     },
     s1: {
@@ -326,7 +326,7 @@ export default {
     },
     s2: {
       label: 'Posts & Community',
-      q0: 'What can I post on Novia?',
+      q0: 'What can I post on Connexion?',
       a0: 'You can post anything tech-related: project updates, job openings, upcoming events, tutorials, news, or community discussions. Choose a category when creating a post to help others find it.',
       q1: 'What post categories are available?',
       a1: 'Posts are organized by category — Community, Job, Event, and Project. Use the appropriate category so users looking for jobs or events can filter them easily.',
@@ -336,7 +336,7 @@ export default {
     s3: {
       label: 'Jobs & Events',
       q0: 'How do I find job opportunities?',
-      a0: 'Browse the Home feed and filter by the "Job" category. Companies and recruiters post openings directly on Novia. You can also make sure your profile and CV are up-to-date so recruiters can find you.',
+      a0: 'Browse the Home feed and filter by the "Job" category. Companies and recruiters post openings directly on Connexion. You can also make sure your profile and CV are up-to-date so recruiters can find you.',
       q1: 'How do I find or promote tech events?',
       a1: 'Filter posts by the "Event" category to see upcoming hackathons, workshops, and meetups. To promote your own event, create a new post and select "Event" as the category.',
     },
@@ -352,7 +352,7 @@ export default {
   },
   help: {
     title: 'Help Center',
-    subtitle: 'Everything you need to get the most out of Novia.',
+    subtitle: 'Everything you need to get the most out of Connexion.',
     profile: {
       title: 'Setting Up Your Profile',
       li0: 'Go to <strong>My Profile</strong> from the top navigation or avatar menu.',
@@ -402,7 +402,7 @@ export default {
     },
     contact: {
       title: 'Still need help?',
-      desc: 'Contact the Novia support team or your platform administrator for account issues, verification problems, or technical errors.',
+      desc: 'Contact the Connexion support team or your platform administrator for account issues, verification problems, or technical errors.',
       btn: 'Read FAQ',
     },
   },

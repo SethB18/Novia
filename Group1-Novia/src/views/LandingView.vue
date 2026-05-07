@@ -4,7 +4,7 @@
       <div class="container d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center">
           <i class="bi bi-briefcase-fill text-primary me-2"></i>
-          <span class="fw-bold fs-4">Novia</span>
+          <span class="fw-bold fs-4">Connexion</span>
         </div>
         <div class="navbar-nav d-flex flex-row gap-3">
           <router-link to="/login" class="nav-link text-dark">
@@ -28,7 +28,7 @@
             </h1>
             <p class="mb-4 text-muted">
               Connect with professionals, share your expertise, and grow your
-              career with Novia - the platform built for modern professionals.
+              career with Connexion - the platform built for modern professionals.
             </p>
             <router-link to="/register" class="btn bg-btn btn-lg text-light">
               Get Started
@@ -118,7 +118,7 @@
           Ready to start your professional journey?
         </h2>
         <p class="mb-4">
-          Join thousands of professionals already using Novia
+          Join thousands of professionals already using Connexion
         </p>
         <router-link to="/register" class="btn btn-light btn-lg">
           Create Your Free Account
@@ -131,14 +131,14 @@
       <div class="container d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center row">
           <i class="bi bi-briefcase-fill text-primary me-2"></i>
-          <span class="fw-bold">Novia</span>
+          <span class="fw-bold">Connexion</span>
           <p>Building the future of community 
             <br>collaboration. Connect, share, <br>
             and grow with the next generation of social platforms.</p>
         </div>
 
         <p class="text-muted small mb-0">
-          © 2026 Novia. All rights reserved.
+          © 2026 Connexion. All rights reserved.
           <p>Building the future of community <br>
             collaboration. Connect, share, and <br>
             grow with the next generationbr

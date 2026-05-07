@@ -10,7 +10,7 @@
       <div class="sidebar-mobile-header">
         <div class="brand-sm">
           <i class="bi bi-hexagon-fill"></i>
-          <span>Novia</span>
+          <span>Connexion</span>
         </div>
         <button class="close-btn" @click="$emit('close')">
           <i class="bi bi-x-lg"></i>

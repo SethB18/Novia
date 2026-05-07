@@ -1,5 +1,5 @@
 <template>
-    <nav class="novia-navbar">
+    <nav class="connexion-navbar">
         <div class="navbar-container">
             <!-- Left: Brand -->
             <div class="navbar-section left">
@@ -7,7 +7,7 @@
                     <div class="logo-icon">
                         <i class="bi bi-hexagon-fill"></i>
                     </div>
-                    <span class="logo-text">Novia</span>
+                    <span class="logo-text">Connexion</span>
                 </router-link>
             </div>
 
@@ -225,7 +225,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.novia-navbar {
+.connexion-navbar {
     position: sticky;
     top: 0;
     left: 0;

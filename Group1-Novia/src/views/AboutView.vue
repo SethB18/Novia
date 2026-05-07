@@ -17,7 +17,7 @@ const router = useRouter()
             <i class="bi bi-hexagon-fill"></i>
           </div>
           <div class="hero-text">
-            <h1>About <span class="brand">Novia</span></h1>
+            <h1>About <span class="brand">Connexion</span></h1>
             <p>{{ t('about.heroDesc') }}</p>
           </div>
         </div>
