@@ -1,5 +1,26 @@
 <template>
   <div class="post-card" v-if="post && post.creator">
+
+    <!-- Delete Confirmation Modal -->
+    <Teleport to="body">
+      <div v-if="showDeleteModal" class="del-overlay" @click.self="showDeleteModal = false">
+        <div class="del-modal">
+          <div class="del-modal-icon">
+            <i class="bi bi-trash3"></i>
+          </div>
+          <h6 class="del-modal-title">{{ t('postCard.deleteTitle') }}</h6>
+          <p class="del-modal-msg">{{ t('postCard.deleteConfirm') }}</p>
+          <div class="del-modal-actions">
+            <button class="del-btn-no" @click="showDeleteModal = false" :disabled="deleting">{{ t('postCard.keepIt') }}</button>
+            <button class="del-btn-yes" @click="confirmDelete" :disabled="deleting">
+              <span v-if="deleting">{{ t('postCard.deleting') }}</span>
+              <span v-else>{{ t('postCard.yesDelete') }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
     <div class="card">
 
       <!-- Header -->
@@ -22,17 +43,22 @@
               <i class="bi bi-globe-americas"></i>
             </div>
           </div>
-          <div v-if="isOwner" class="d-flex gap-2">
-            <button class="btn btn-outline-primary btn-sm" @click="handleEdit">
-              <i class="bi bi-pencil"></i> Edit
+          <!-- 3-dot menu — only rendered for post owner -->
+          <div v-if="isOwner" class="post-menu-wrap" ref="menuRef">
+            <button class="post-menu-btn" @click="showMenu = !showMenu">
+              <i class="bi bi-three-dots"></i>
             </button>
-            <button class="btn btn-outline-danger btn-sm" @click="handleDelete">
-              <i class="bi bi-trash"></i> Delete
-            </button>
+            <Transition name="drop">
+              <div v-if="showMenu" class="post-menu-dropdown">
+                <button class="post-menu-item" @click="handleEdit(); showMenu = false">
+                  <i class="bi bi-pencil"></i> {{ t('postCard.edit') }}
+                </button>
+                <button class="post-menu-item danger" @click="handleDelete(); showMenu = false">
+                  <i class="bi bi-trash"></i> {{ t('postCard.delete') }}
+                </button>
+              </div>
+            </Transition>
           </div>
-          <button v-else class="btn btn-link text-muted p-0">
-            <i class="bi bi-three-dots"></i>
-          </button>
         </div>
       </div>
 
@@ -76,18 +102,18 @@
         <div class="action-row">
           <button class="act-btn" :class="{ liked: liked }" @click="toggleLike">
             <i :class="liked ? 'bi bi-hand-thumbs-up-fill' : 'bi bi-hand-thumbs-up'"></i>
-            <span>{{ liked ? 'Liked' : 'Like' }}</span>
+            <span>{{ liked ? t('postCard.liked') : t('postCard.like') }}</span>
           </button>
 
           <button class="act-btn" :class="{ active: showComments }" @click="showComments = !showComments">
             <i class="bi bi-chat"></i>
-            <span>Comment</span>
+            <span>{{ t('postCard.comment') }}</span>
           </button>
 
           <div class="share-wrap" ref="shareRef">
             <button class="act-btn" :class="{ active: showShare }" @click="showShare = !showShare">
               <i class="bi bi-share"></i>
-              <span>Share</span>
+              <span>{{ t('postCard.share') }}</span>
             </button>
 
             <!-- Share dropdown -->
@@ -115,7 +141,7 @@
                   <span class="share-icon cp">
                     <i class="bi bi-link-45deg"></i>
                   </span>
-                  {{ copied ? 'Copied!' : 'Copy Link' }}
+                  {{ copied ? t('postCard.copied') : t('postCard.copyLink') }}
                 </button>
               </div>
             </Transition>
@@ -144,7 +170,7 @@
               <textarea
                 v-model="commentDraft"
                 class="comment-input"
-                placeholder="Write a comment…"
+                :placeholder="t('postCard.writeComment')"
                 rows="1"
                 @keydown.enter.exact.prevent="submitComment"
               />
@@ -166,15 +192,17 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStores } from '@/stores/auth'
 import { usePostStore } from '@/stores/post'
-import { useRouter } from 'vue-router'
+
+const { t } = useI18n()
 
 const props = defineProps({ post: { type: Object, required: true } })
+const emit = defineEmits(['edit'])
 
 const auth      = useAuthStores()
 const postStore = usePostStore()
-const router    = useRouter()
 
 const isOwner = computed(() => auth.user?.id === props.post.creator?.id)
 
@@ -208,6 +236,10 @@ function submitComment() {
   commentDraft.value = ''
 }
 
+// ── Post options menu ──────────────────
+const showMenu = ref(false)
+const menuRef  = ref(null)
+
 // ── Share ──────────────────────────────
 const showShare = ref(false)
 const copied    = ref(false)
@@ -235,6 +267,9 @@ function onClickOutside(e) {
   if (shareRef.value && !shareRef.value.contains(e.target)) {
     showShare.value = false
   }
+  if (menuRef.value && !menuRef.value.contains(e.target)) {
+    showMenu.value = false
+  }
 }
 onMounted(() => document.addEventListener('click', onClickOutside))
 onUnmounted(() => document.removeEventListener('click', onClickOutside))
@@ -245,19 +280,25 @@ function formatDate(d) {
 }
 
 function handleEdit() {
-  router.push({
-    name: 'CreatePost',
-    query: {
-      edit: props.post.id,
-      from: router.currentRoute.value.fullPath,
-    },
-  })
+  emit('edit', props.post)
 }
 
-async function handleDelete() {
-  if (confirm('Are you sure you want to delete this post?')) {
-    try { await postStore.deletePost(props.post.id) }
-    catch (e) { console.error(e) }
+const showDeleteModal = ref(false)
+const deleting        = ref(false)
+
+function handleDelete() {
+  showDeleteModal.value = true
+}
+
+async function confirmDelete() {
+  deleting.value = true
+  try {
+    await postStore.deletePost(props.post.id)
+    showDeleteModal.value = false
+  } catch (e) {
+    console.error(e)
+  } finally {
+    deleting.value = false
   }
 }
 </script>
@@ -486,9 +527,149 @@ async function handleDelete() {
 .expand-enter-from, .expand-leave-to { max-height: 0; opacity: 0; }
 .expand-enter-to { max-height: 600px; opacity: 1; }
 
+/* ── 3-dot post menu ─────────────────── */
+.post-menu-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.post-menu-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: none;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.post-menu-btn:hover { background: #f1f5f9; color: #374151; }
+
+.post-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  border: 1px solid #e2e8f0;
+  min-width: 140px;
+  overflow: hidden;
+  z-index: 300;
+}
+
+.post-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  font-size: .86rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background .12s;
+}
+.post-menu-item:hover { background: #f8fafc; }
+.post-menu-item.danger { color: #dc2626; }
+.post-menu-item.danger:hover { background: #fef2f2; }
+
 /* Responsive */
 @media (max-width: 576px) {
   .card-header, .card-body { padding: 10px 12px; }
   .act-btn { padding: 8px 10px; font-size: .8rem; }
 }
+
+/* ── Delete Confirmation Modal ─────────────── */
+.del-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+}
+
+.del-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 28px 24px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.del-modal-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.del-modal-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 8px;
+}
+
+.del-modal-msg {
+  font-size: .87rem;
+  color: #6b7280;
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+
+.del-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.del-btn-no {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  background: #fff;
+  color: #374151;
+  font-size: .88rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s;
+}
+.del-btn-no:hover:not(:disabled) { background: #f3f4f6; }
+
+.del-btn-yes {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #dc2626;
+  color: #fff;
+  font-size: .88rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s;
+}
+.del-btn-yes:hover:not(:disabled) { background: #b91c1c; }
+.del-btn-no:disabled,
+.del-btn-yes:disabled { opacity: .6; cursor: not-allowed; }
 </style>

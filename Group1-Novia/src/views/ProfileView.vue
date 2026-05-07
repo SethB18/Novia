@@ -17,7 +17,7 @@
         <button class="cover-edit-btn" @click="coverInput.click()" :disabled="uploadingCover">
           <Loader2 v-if="uploadingCover" :size="14" class="spin" />
           <ImageIcon v-else :size="14" />
-          {{ uploadingCover ? 'Uploading…' : 'Change Cover' }}
+          {{ uploadingCover ? t('profile.hero.uploading') : t('profile.hero.changeCover') }}
         </button>
         <input ref="coverInput" type="file" accept="image/*" hidden @change="onCoverFile" />
 
@@ -36,7 +36,7 @@
             <div class="hero-info">
               <h2 class="hero-name">{{ profile.full_name }}</h2>
               <p class="hero-role">
-                {{ profile.professional?.job_title || 'Add your job title' }}
+                {{ profile.professional?.job_title || t('profile.hero.addJobTitle') }}
               </p>
               <p class="hero-company" v-if="profile.professional?.company_name">
                 {{ profile.professional.company_name }}
@@ -53,11 +53,11 @@
       <div class="profile-tabs">
         <div class="container">
           <div class="tabs">
-            <span class="tab" :class="{ active: activeTab === 'overview' }"    @click="activeTab = 'overview'">Overview</span>
-            <span class="tab" :class="{ active: activeTab === 'professional' }" @click="activeTab = 'professional'">Professional</span>
-            <span class="tab" :class="{ active: activeTab === 'education' }"   @click="activeTab = 'education'">Education</span>
-            <span class="tab" :class="{ active: activeTab === 'collaboration' }" @click="activeTab = 'collaboration'">Collaboration</span>
-            <span class="tab" :class="{ active: activeTab === 'cv' }"          @click="activeTab = 'cv'">CV</span>
+            <span class="tab" :class="{ active: activeTab === 'overview' }"    @click="activeTab = 'overview'">{{ t('profile.tabs.overview') }}</span>
+            <span class="tab" :class="{ active: activeTab === 'professional' }" @click="activeTab = 'professional'">{{ t('profile.tabs.professional') }}</span>
+            <span class="tab" :class="{ active: activeTab === 'education' }"   @click="activeTab = 'education'">{{ t('profile.tabs.education') }}</span>
+            <span class="tab" :class="{ active: activeTab === 'collaboration' }" @click="activeTab = 'collaboration'">{{ t('profile.tabs.collaboration') }}</span>
+            <span class="tab" :class="{ active: activeTab === 'cv' }"          @click="activeTab = 'cv'">{{ t('profile.tabs.cv') }}</span>
           </div>
         </div>
       </div>
@@ -66,15 +66,13 @@
            MAIN CONTENT
       ════════════════════════════════════════════ -->
       <div class="container">
-        <div class="row">
-
-          <!-- ─── LEFT SIDEBAR ─────────────────────── -->
-          <div class="col-3">
+          <!-- ─── INFO ROW: Contact / Skills / Education ─── -->
+          <div class="info-row-grid">
 
             <!-- Contact -->
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">Contact</h6>
+                <h6 class="card-title">{{ t('profile.contact.title') }}</h6>
                 <div class="info-row" v-if="profile.email">
                   <Mail :size="13" class="info-icon" />
                   <span>{{ profile.email }}</span>
@@ -89,9 +87,9 @@
                 </div>
                 <div class="info-row" v-if="profile.portfolio_link">
                   <Link2 :size="13" class="info-icon" />
-                  <a :href="profile.portfolio_link" target="_blank" class="info-link">Portfolio</a>
+                  <a :href="profile.portfolio_link" target="_blank" class="info-link">{{ t('profile.contact.portfolio') }}</a>
                 </div>
-                <router-link to="/editProfile" class="edit-link">Edit Info</router-link>
+                <router-link to="/editProfile" class="edit-link">{{ t('profile.contact.editInfo') }}</router-link>
               </div>
             </div>
 
@@ -99,7 +97,7 @@
             <div class="card">
               <div class="card-body">
                 <div class="card-title-row">
-                  <h6 class="card-title">Skills</h6>
+                  <h6 class="card-title">{{ t('profile.skills.title') }}</h6>
                   <button class="icon-action-btn" @click="showSkillModal = true" title="Manage skills">
                     <Settings :size="13" />
                   </button>
@@ -108,8 +106,8 @@
                   <span class="skill-badge" v-for="s in profile.skills" :key="s.id">{{ s.name }}</span>
                 </div>
                 <p v-else class="empty-text">
-                  No skills yet.
-                  <button class="text-btn" @click="showSkillModal = true">Add skills</button>
+                  {{ t('profile.skills.noSkills') }}
+                  <button class="text-btn" @click="showSkillModal = true">{{ t('profile.skills.addSkills') }}</button>
                 </p>
               </div>
             </div>
@@ -118,7 +116,7 @@
             <div class="card">
               <div class="card-body">
                 <div class="card-title-row">
-                  <h6 class="card-title">Education</h6>
+                  <h6 class="card-title">{{ t('profile.education.title') }}</h6>
                   <router-link to="/editEducation" class="icon-action-btn" title="Manage education">
                     <Settings :size="13" />
                   </router-link>
@@ -130,34 +128,35 @@
                   </div>
                 </template>
                 <p v-else class="empty-text">
-                  No education yet.
-                  <router-link to="/editEducation" class="text-btn">Add education</router-link>
+                  {{ t('profile.education.noEducation') }}
+                  <router-link to="/editEducation" class="text-btn">{{ t('profile.education.addEducation') }}</router-link>
                 </p>
               </div>
             </div>
 
           </div>
 
-          <!-- ─── RIGHT CONTENT ─────────────────────── -->
-          <div class="col-8 my-3">
+          <!-- ─── TAB CONTENT ─────────────────────── -->
+          <div class="tab-panel my-3">
 
             <!-- ── OVERVIEW ─────────────────────────── -->
             <div v-if="activeTab === 'overview'" class="card">
               <div class="card-body">
                 <div class="section-header">
-                  <h6 class="card-title">My Posts ({{ postCount }})</h6>
-                  <router-link to="/create-post" class="btn-sm-primary">
-                    <Plus :size="13" /> Create Post
-                  </router-link>
+                  <h6 class="card-title">{{ t('profile.overview.myPosts', { count: postCount }) }}</h6>
+                  <button class="btn-sm-primary" @click="createPostRef?.openModal()">
+                    <Plus :size="13" /> {{ t('profile.overview.createPost') }}
+                  </button>
                 </div>
 
                 <div v-if="loadingPosts" class="text-center py-4">
                   <div class="spinner" />
                 </div>
                 <div v-else-if="paginatedPosts.length">
-                  <PostCard v-for="post in paginatedPosts" :key="post.id" :post="post" class="mb-3" />
+                  <PostCard v-for="post in paginatedPosts" :key="post.id" :post="post" class="mb-3"
+                    @edit="post => createPostRef?.openForEdit(post)" />
                 </div>
-                <div v-else class="empty-state-sm">No posts yet.</div>
+                <div v-else class="empty-state-sm">{{ t('profile.overview.noPosts') }}</div>
 
                 <div class="pager" v-if="totalPages > 1">
                   <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--">‹</button>
@@ -171,30 +170,30 @@
             <div v-if="activeTab === 'professional'" class="card">
               <div class="card-body">
                 <div class="section-header">
-                  <h6 class="card-title">Professional Info</h6>
+                  <h6 class="card-title">{{ t('profile.professional.title') }}</h6>
                   <router-link to="/editProfile" class="btn-sm-ghost">
-                    <Pencil :size="13" /> Edit
+                    <Pencil :size="13" /> {{ t('profile.professional.edit') }}
                   </router-link>
                 </div>
                 <template v-if="profile.professional?.job_title">
                   <div class="prof-grid">
                     <div class="prof-item">
-                      <span class="prof-label">Job Title</span>
+                      <span class="prof-label">{{ t('profile.professional.jobTitle') }}</span>
                       <span class="prof-value">{{ profile.professional.job_title }}</span>
                     </div>
                     <div class="prof-item">
-                      <span class="prof-label">Company</span>
+                      <span class="prof-label">{{ t('profile.professional.company') }}</span>
                       <span class="prof-value">{{ profile.professional.company_name || '—' }}</span>
                     </div>
                     <div class="prof-item full">
-                      <span class="prof-label">Responsibilities</span>
+                      <span class="prof-label">{{ t('profile.professional.responsibilities') }}</span>
                       <span class="prof-value">{{ profile.professional.responsibility || '—' }}</span>
                     </div>
                   </div>
                 </template>
                 <div v-else class="empty-state-sm">
-                  No professional info yet.
-                  <router-link to="/editProfile" class="text-btn">Add info</router-link>
+                  {{ t('profile.professional.noInfo') }}
+                  <router-link to="/editProfile" class="text-btn">{{ t('profile.professional.addInfo') }}</router-link>
                 </div>
               </div>
             </div>
@@ -203,9 +202,9 @@
             <div v-if="activeTab === 'education'" class="card">
               <div class="card-body">
                 <div class="section-header">
-                  <h6 class="card-title">Education</h6>
+                  <h6 class="card-title">{{ t('profile.education.title') }}</h6>
                   <router-link to="/editEducation" class="btn-sm-primary">
-                    <Plus :size="13" /> Manage
+                    <Plus :size="13" /> {{ t('profile.education.manage') }}
                   </router-link>
                 </div>
                 <template v-if="profile.educations?.length">
@@ -222,7 +221,7 @@
                         </p>
                         <p class="edu-dates-text">
                           <CalendarDays :size="11" />
-                          {{ edu.start_date }} → {{ edu.end_date || 'Ongoing' }}
+                          {{ edu.start_date }} → {{ edu.end_date || t('profile.education.ongoing') }}
                         </p>
                         <p class="edu-desc-text" v-if="edu.description">{{ edu.description }}</p>
                       </div>
@@ -230,8 +229,8 @@
                   </div>
                 </template>
                 <div v-else class="empty-state-sm">
-                  No education records yet.
-                  <router-link to="/editEducation" class="text-btn">Add education</router-link>
+                  {{ t('profile.education.noRecords') }}
+                  <router-link to="/editEducation" class="text-btn">{{ t('profile.education.addEducation') }}</router-link>
                 </div>
               </div>
             </div>
@@ -240,13 +239,13 @@
             <div v-if="activeTab === 'collaboration'" class="card">
               <div class="card-body">
                 <div class="section-header">
-                  <h6 class="card-title">Collaboration</h6>
+                  <h6 class="card-title">{{ t('profile.collab.title') }}</h6>
                   <button class="btn-sm-primary" @click="openCollabModal">
                     <template v-if="profile.collaboration">
-                      <Pencil :size="13" /> Edit
+                      <Pencil :size="13" /> {{ t('profile.collab.edit') }}
                     </template>
                     <template v-else>
-                      <Plus :size="13" /> Add
+                      <Plus :size="13" /> {{ t('profile.collab.add') }}
                     </template>
                   </button>
                 </div>
@@ -265,7 +264,7 @@
                     </div>
                   </div>
                   <div class="collab-info">
-                    <p class="collab-link-label">Company / Portfolio Link</p>
+                    <p class="collab-link-label">{{ t('profile.collab.companyLink') }}</p>
                     <a
                       v-if="profile.collaboration.company_link"
                       :href="profile.collaboration.company_link"
@@ -275,17 +274,17 @@
                       <ExternalLink :size="13" />
                       {{ profile.collaboration.company_link }}
                     </a>
-                    <span v-else class="empty-text">No link provided</span>
+                    <span v-else class="empty-text">{{ t('profile.collab.noLink') }}</span>
                   </div>
                 </div>
 
                 <!-- Empty state -->
                 <div v-else class="empty-state collab-empty">
                   <div class="empty-icon"><Handshake :size="28" /></div>
-                  <h5 class="empty-title">No Collaboration Yet</h5>
-                  <p class="empty-desc">Add your company logo and website to attract partners.</p>
+                  <h5 class="empty-title">{{ t('profile.collab.emptyTitle') }}</h5>
+                  <p class="empty-desc">{{ t('profile.collab.emptyDesc') }}</p>
                   <button class="btn-primary" @click="openCollabModal">
-                    <Plus :size="14" /> Add Collaboration
+                    <Plus :size="14" /> {{ t('profile.collab.addCollab') }}
                   </button>
                 </div>
               </div>
@@ -295,11 +294,11 @@
             <div v-if="activeTab === 'cv'" class="card">
               <div class="card-body">
                 <div class="section-header">
-                  <h6 class="card-title">CV / Resume</h6>
+                  <h6 class="card-title">{{ t('profile.cvSection.title') }}</h6>
                   <button class="btn-sm-primary" @click="cvInput.click()" :disabled="uploadingCV">
                     <Loader2 v-if="uploadingCV" :size="13" class="spin" />
                     <Upload v-else :size="13" />
-                    {{ uploadingCV ? 'Uploading…' : (profile.cv ? 'Replace CV' : 'Upload CV') }}
+                    {{ uploadingCV ? t('profile.cvSection.uploading') : (profile.cv ? t('profile.cvSection.replaceCv') : t('profile.cvSection.uploadCv')) }}
                   </button>
                   <input ref="cvInput" type="file" accept=".pdf,.doc,.docx" hidden @change="onCvFile" />
                 </div>
@@ -307,20 +306,19 @@
                 <div v-if="profile.cv" class="cv-preview">
                   <div class="cv-icon"><FileText :size="28" /></div>
                   <div>
-                    <p class="cv-name">Curriculum Vitae</p>
+                    <p class="cv-name">{{ t('profile.cvSection.curriculumVitae') }}</p>
                     <a :href="profile.cv" target="_blank" class="cv-link">
-                      <ExternalLink :size="12" /> View / Download
+                      <ExternalLink :size="12" /> {{ t('profile.cvSection.viewDownload') }}
                     </a>
                   </div>
                 </div>
                 <div v-else class="empty-state-sm">
-                  No CV uploaded yet.
+                  {{ t('profile.cvSection.noCv') }}
                 </div>
               </div>
             </div>
 
           </div>
-        </div>
       </div>
 
     </div>
@@ -328,6 +326,13 @@
     <!-- ═══════════════════════════════════════════
          MODALS
     ════════════════════════════════════════════ -->
+
+    <!-- Create / Edit Post Modal -->
+    <CreatePostView
+      ref="createPostRef"
+      :show-trigger="false"
+      @post-created="() => postStore.fetchPosts()"
+    />
 
     <!-- Image Crop Modal -->
     <ImageCropModal
@@ -368,11 +373,14 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   Plus, Pencil, Camera, ImageIcon, Settings, Mail, Phone,
   MapPin, Link2, Building2, CalendarDays, CheckCircle2, XCircle,
   Loader2, Upload, FileText, ExternalLink, Handshake
 } from 'lucide-vue-next'
+
+const { t } = useI18n()
 import { usePostStore } from '@/stores/post'
 import { useAuthStores } from '@/stores/auth'
 import { useProfileStore } from '@/stores/profile'
@@ -381,10 +389,12 @@ import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import ImageCropModal from '@/components/ImageCropModal.vue'
 import CollaborationModal from '@/components/CollaborationModal.vue'
 import SkillModal from '@/components/SkillModal.vue'
+import CreatePostView from '@/views/CreatePostView.vue'
 
 const postStore    = usePostStore()
 const auth         = useAuthStores()
 const profileStore = useProfileStore()
+const createPostRef = ref(null)
 
 // ── State ──────────────────────────────────────────────────
 const activeTab     = ref('overview')
@@ -685,15 +695,21 @@ function showToast(msg, type = 'success') {
 .tab.active { color: #111; border-bottom: 2px solid #111; font-weight: 600; }
 
 /* ── LAYOUT ──────────────────────────── */
-.row {
+.info-row-grid {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   margin-top: 20px;
+  align-items: flex-start;
 }
 
-.col-3 { width: 28%; }
-.col-8 { width: 72%; }
-.my-3  { margin-bottom: 20px; }
+.info-row-grid > .card {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.tab-panel { width: 100%; }
+.my-3 { margin-bottom: 20px; }
 
 /* ── CARD ────────────────────────────── */
 .card {

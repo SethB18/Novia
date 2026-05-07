@@ -1,8 +1,10 @@
 <script setup>
-import DashboardLayout from '@/layouts/DashboardLayout.vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import DashboardLayout from '@/layouts/DashboardLayout.vue'
 
+const { t } = useI18n()
 const router = useRouter()
 const openIndex = ref(null)
 
@@ -10,93 +12,48 @@ const toggle = (i) => {
   openIndex.value = openIndex.value === i ? null : i
 }
 
-const faqs = [
+const faqs = computed(() => [
   {
-    category: 'Getting Started',
+    category: t('faq.s0.label'),
     items: [
-      {
-        q: 'What is Novia?',
-        a: 'Novia is a tech community platform where developers, designers, students, and tech professionals connect. You can share posts, find jobs, discover events, message others, and build a professional profile — all in one place.'
-      },
-      {
-        q: 'Who can join Novia?',
-        a: 'Anyone with a passion for technology. Whether you\'re a student, a freelancer, a professional, or a company looking to hire — Novia is open to everyone in the tech space.'
-      },
-      {
-        q: 'Is Novia free to use?',
-        a: 'Yes. Creating an account and using all core features — posts, messaging, profiles, and the community feed — is completely free.'
-      },
+      { q: t('faq.s0.q0'), a: t('faq.s0.a0') },
+      { q: t('faq.s0.q1'), a: t('faq.s0.a1') },
+      { q: t('faq.s0.q2'), a: t('faq.s0.a2') },
     ]
   },
   {
-    category: 'Profile & CV',
+    category: t('faq.s1.label'),
     items: [
-      {
-        q: 'How do I upload my CV?',
-        a: 'Go to your Profile page and click the CV tab. You can upload a PDF, DOC, or DOCX file. Anyone viewing your public profile can then view or download your resume.'
-      },
-      {
-        q: 'Can other users see my personal information?',
-        a: 'Your public profile shows your name, job title, skills, education, projects, and collaboration details. Sensitive data like your password is never shared.'
-      },
-      {
-        q: 'How do I add or remove skills?',
-        a: 'On your profile page, click the Skills button. A modal will appear where you can search existing skills, select them, or create a new one if it doesn\'t exist yet.'
-      },
-      {
-        q: 'What is the Collaboration section?',
-        a: 'The Collaboration section lets you add your company logo and a link to your organization or portfolio. It signals to the community that you\'re open to partnerships or hiring.'
-      },
+      { q: t('faq.s1.q0'), a: t('faq.s1.a0') },
+      { q: t('faq.s1.q1'), a: t('faq.s1.a1') },
+      { q: t('faq.s1.q2'), a: t('faq.s1.a2') },
+      { q: t('faq.s1.q3'), a: t('faq.s1.a3') },
     ]
   },
   {
-    category: 'Posts & Community',
+    category: t('faq.s2.label'),
     items: [
-      {
-        q: 'What can I post on Novia?',
-        a: 'You can post anything tech-related: project updates, job openings, upcoming events, tutorials, news, or community discussions. Choose a category when creating a post to help others find it.'
-      },
-      {
-        q: 'What post categories are available?',
-        a: 'Posts are organized by category — Community, Job, Event, and Project. Use the appropriate category so users looking for jobs or events can filter them easily.'
-      },
-      {
-        q: 'Can I attach files or images to a post?',
-        a: 'Yes. When creating a post you can attach images and files to provide more context or showcase your work.'
-      },
+      { q: t('faq.s2.q0'), a: t('faq.s2.a0') },
+      { q: t('faq.s2.q1'), a: t('faq.s2.a1') },
+      { q: t('faq.s2.q2'), a: t('faq.s2.a2') },
     ]
   },
   {
-    category: 'Jobs & Events',
+    category: t('faq.s3.label'),
     items: [
-      {
-        q: 'How do I find job opportunities?',
-        a: 'Browse the Home feed and filter by the "Job" category. Companies and recruiters post openings directly on Novia. You can also make sure your profile and CV are up-to-date so recruiters can find you.'
-      },
-      {
-        q: 'How do I find or promote tech events?',
-        a: 'Filter posts by the "Event" category to see upcoming hackathons, workshops, and meetups. To promote your own event, create a new post and select "Event" as the category.'
-      },
+      { q: t('faq.s3.q0'), a: t('faq.s3.a0') },
+      { q: t('faq.s3.q1'), a: t('faq.s3.a1') },
     ]
   },
   {
-    category: 'Messaging & Security',
+    category: t('faq.s4.label'),
     items: [
-      {
-        q: 'How do I send a message to someone?',
-        a: 'Go to the Message page from the left sidebar or click the Message button on any user\'s profile. Type your message and press Enter to send. Conversations are real-time.'
-      },
-      {
-        q: 'How do I change my password?',
-        a: 'Go to Privacy & Security from the sidebar. Enter your current password, then your new password, and confirm it. Hit Save to update.'
-      },
-      {
-        q: 'What should I do if I can\'t log in?',
-        a: 'Use the Forgot Password link on the login page. Enter your email to receive a verification code, then follow the steps to reset your password.'
-      },
+      { q: t('faq.s4.q0'), a: t('faq.s4.a0') },
+      { q: t('faq.s4.q1'), a: t('faq.s4.a1') },
+      { q: t('faq.s4.q2'), a: t('faq.s4.a2') },
     ]
   },
-]
+])
 </script>
 
 <template>
@@ -110,8 +67,8 @@ const faqs = [
             <i class="bi bi-question-circle-fill"></i>
           </div>
           <div>
-            <h1>Frequently Asked Questions</h1>
-            <p>Quick answers to the most common questions about Novia.</p>
+            <h1>{{ t('faq.title') }}</h1>
+            <p>{{ t('faq.subtitle') }}</p>
           </div>
         </div>
 
@@ -140,11 +97,11 @@ const faqs = [
         <div class="faq-footer">
           <i class="bi bi-headset"></i>
           <div>
-            <strong>Didn't find your answer?</strong>
-            <p>Visit the Help Center for step-by-step guides on every feature.</p>
+            <strong>{{ t('faq.footer.title') }}</strong>
+            <p>{{ t('faq.footer.desc') }}</p>
           </div>
           <button class="btn-help" @click="router.push('/help')">
-            <i class="bi bi-life-preserver"></i> Help Center
+            <i class="bi bi-life-preserver"></i> {{ t('faq.footer.btn') }}
           </button>
         </div>
 

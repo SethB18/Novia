@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { ref, nextTick, onMounted , computed} from 'vue'
+import { ref, nextTick, onMounted, computed } from 'vue'
 import { usePostStore } from '@/stores/post'
-import { useRoute, useRouter } from 'vue-router'
 import { useCategoryStore } from '../stores/category'
 import BaseModal from '../components/BaseModal.vue'
-import {useAuthStores} from "@/stores/auth";
+import { useAuthStores } from "@/stores/auth"
 
+const props = defineProps<{ showTrigger?: boolean }>()
 const emit = defineEmits(['post-created'])
 const auth = useAuthStores()
-const route = useRoute()
-const router = useRouter()
 const postStore = usePostStore()
 const categoryStore = useCategoryStore()
 
@@ -19,16 +17,18 @@ const openModal = () => {
   showModal.value = true
 }
 
-const getReturnPath = () => {
-  const from = route.query.from
-  if (typeof from === 'string' && from.trim()) return from
-  return '/'
-}
-
 const closeModal = () => {
   showModal.value = false
   if (isEditing.value) {
-    router.push(getReturnPath())
+    isEditing.value = false
+    editingPostId.value = null
+    content.value = ''
+    image.value = null
+    imagePreview.value = null
+    selectedCategories.value = []
+    showEmoji.value = false
+    submitSuccess.value = ''
+    submitError.value = ''
   }
 }
 
@@ -61,26 +61,22 @@ onMounted(async () => {
   await categoryStore.fetchCategory()
 })
 
-onMounted(async () => {
-  const editId = route.query.edit as string
-  if (editId) {
-    isEditing.value = true
-    editingPostId.value = parseInt(editId)
+const openForEdit = async (post: any) => {
+  isEditing.value = true
+  editingPostId.value = post.id
+  content.value = post.text || ''
+  imagePreview.value = post.image || null
+  selectedCategories.value = Array.isArray(post.categories)
+    ? post.categories.map((cat: any) => Number(cat.id)).filter(Boolean)
+    : []
+  showEmoji.value = false
+  submitSuccess.value = ''
+  submitError.value = ''
+  showModal.value = true
+  await autoResize()
+}
 
-    await postStore.fetchPostById(editingPostId.value)
-
-    const post = postStore.post
-    if (post) {
-      content.value = post.text || ''
-      imagePreview.value = post.image || null
-      selectedCategories.value = Array.isArray(post.categories)
-        ? post.categories.map((cat: any) => Number(cat.id)).filter(Boolean)
-        : []
-      autoResize()
-      openModal()
-    }
-  }
-})
+defineExpose({ openModal, openForEdit })
 
 const addEmoji = (e: string) => {
   content.value += e
@@ -131,7 +127,7 @@ const submitPost = async () => {
 
     if (isEditing.value && editingPostId.value) {
       await postStore.updatePost(editingPostId.value, formData)
-      submitSuccess.value = 'Post updated successfully. Redirecting...'
+      submitSuccess.value = 'Post updated successfully!'
     } else {
       await postStore.addPost(formData)
       submitSuccess.value = 'Post created successfully.'
@@ -163,10 +159,10 @@ const submitPost = async () => {
 </script>
 
 <template>
-  <div class="container my-5">
+  <div>
 
-    <!-- OPEN POST BUTTON -->
-    <div class="post-trigger-btn" @click="openModal">
+    <!-- "What is on your mind?" trigger — only shown when showTrigger !== false -->
+    <div v-if="showTrigger !== false" class="post-trigger-btn" @click="openModal">
       <img :src="userAvatar" alt="avatarSrc" class="avatar">
       <p>What is on your mind?</p>
       <i class="bi bi-pencil-square ms-auto"></i>
@@ -181,7 +177,7 @@ const submitPost = async () => {
       <!-- HEADER -->
       <template #header>
         <div class="d-flex justify-content-between w-100">
-          <h5>Create Post</h5>
+          <h5>{{ isEditing ? 'Edit Post' : 'Create Post' }}</h5>
           <button class="btn-close" @click="closeModal"></button>
         </div>
       </template>
@@ -274,6 +270,7 @@ const submitPost = async () => {
 
   </div>
 </template>
+
 
 <style scoped>
 .post-trigger-btn {

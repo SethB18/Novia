@@ -18,7 +18,7 @@
                         <i class="bi bi-search search-icon"></i>
                         <input
                             type="text"
-                            placeholder="Search posts & people..."
+                            :placeholder="t('navbar.searchPlaceholder')"
                             class="search-input"
                             v-model="searchQuery"
                             @input="handleSearch"
@@ -29,7 +29,7 @@
                     <!-- Search Results Dropdown -->
                     <div v-if="showSearchResults && (searchResults.length > 0 || isSearching)" class="search-results">
                         <div v-if="isSearching" class="search-loading">
-                            <span class="spinner"></span> Searching...
+                            <span class="spinner"></span> {{ t('navbar.searching') }}
                         </div>
                         <div v-else-if="searchResults.length > 0" class="results-list">
                             <router-link 
@@ -42,12 +42,12 @@
                                 <img :src="user.avatar" :alt="user.full_name" class="result-avatar">
                                 <div class="result-info">
                                     <p class="result-name">{{ user.full_name }}</p>
-                                    <p class="result-title">{{ user.professional_title || 'User' }}</p>
+                                    <p class="result-title">{{ user.professional_title || t('common.user') }}</p>
                                 </div>
                             </router-link>
                         </div>
                         <div v-else class="no-results">
-                            No users found
+                            {{ t('navbar.noUsersFound') }}
                         </div>
                     </div>
                 </div>
@@ -56,6 +56,12 @@
             <!-- Right: Actions -->
             <div class="navbar-section right">
                 <div class="nav-actions">
+                    <!-- Language Switcher -->
+                    <button class="action-btn lang-btn" @click="toggleLanguage" :title="locale === 'en' ? 'Switch to Khmer' : 'Switch to English'">
+                        <span class="lang-flag">{{ locale === 'en' ? '🇰🇭' : '🇺🇸' }}</span>
+                        <span class="lang-code">{{ locale === 'en' ? 'KH' : 'EN' }}</span>
+                    </button>
+
                     <!-- Messages -->
                     <button class="action-btn" @click="toggleMessages">
                         <i class="bi bi-chat-dots-fill"></i>
@@ -73,16 +79,16 @@
                         <div v-if="showProfileDropdown" class="profile-dropdown-menu">
                             <router-link to="/profile" class="dropdown-item" @click="closeDropdown">
                                 <i class="bi bi-person-circle"></i>
-                                <span>My Profile</span>
+                                <span>{{ t('navbar.myProfile') }}</span>
                             </router-link>
                             <router-link to="/settings" class="dropdown-item" @click="closeDropdown">
                                 <i class="bi bi-gear"></i>
-                                <span>Settings</span>
+                                <span>{{ t('navbar.settings') }}</span>
                             </router-link>
                             <hr class="dropdown-divider">
                             <button class="dropdown-item" @click="logout">
                                 <i class="bi bi-box-arrow-right"></i>
-                                <span>Logout</span>
+                                <span>{{ t('navbar.logout') }}</span>
                             </button>
                         </div>
                     </div>
@@ -95,13 +101,20 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStores } from '@/stores/auth'
 import { usePostStore } from '@/stores/post'
 import api from '@/api/http'
 
+const { t, locale } = useI18n()
 const router = useRouter()
 const auth = useAuthStores()
 const postStore = usePostStore()
+
+const toggleLanguage = () => {
+    locale.value = locale.value === 'en' ? 'km' : 'en'
+    localStorage.setItem('app-locale', locale.value)
+}
 
 // Reactive data
 const unreadMessages = ref(3)
@@ -577,5 +590,35 @@ onUnmounted(() => {
     .profile-dropdown-menu {
         min-width: 160px;
     }
+}
+
+/* Language Switcher */
+.lang-btn {
+    width: auto;
+    padding: 0 0.75rem;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.lang-btn:hover {
+    border-color: #6366f1;
+}
+
+.lang-flag {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.lang-code {
+    color: #374151;
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+}
+
+.lang-btn:hover .lang-code {
+    color: #6366f1;
 }
 </style>

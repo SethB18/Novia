@@ -22,7 +22,7 @@
 
         <!-- Main -->
         <div class="nav-group">
-          <span class="nav-label">Main Menu</span>
+          <span class="nav-label">{{ t('nav.mainMenu') }}</span>
           <ul>
             <li v-for="item in menuItems" :key="item.key">
               <router-link
@@ -43,7 +43,7 @@
 
         <!-- Settings -->
         <div class="nav-group">
-          <span class="nav-label">Settings</span>
+          <span class="nav-label">{{ t('nav.settings') }}</span>
           <ul>
             <li v-for="item in settingsItems" :key="item.key">
               <router-link
@@ -64,7 +64,7 @@
 
         <!-- Help & Info -->
         <div class="nav-group">
-          <span class="nav-label">Help & Info</span>
+          <span class="nav-label">{{ t('nav.helpInfo') }}</span>
           <ul>
             <li v-for="item in helpItems" :key="item.key">
               <router-link
@@ -85,12 +85,12 @@
 
         <!-- Logout -->
         <div class="nav-group bottom">
-          <span class="nav-label">Account</span>
+          <span class="nav-label">{{ t('nav.account') }}</span>
           <button class="nav-link logout" @click="handleLogout">
             <span class="link-icon">
               <i class="bi bi-box-arrow-left"></i>
             </span>
-            <span class="link-text">Log Out</span>
+            <span class="link-text">{{ t('nav.logout') }}</span>
           </button>
         </div>
 
@@ -100,8 +100,11 @@
 </template>
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStores } from '@/stores/auth'
 import { useRouter, useRoute } from 'vue-router'
+
+const { t } = useI18n()
 
 const props = defineProps({
   isOpen: Boolean
@@ -116,28 +119,32 @@ const route  = useRoute()
 const windowWidth = ref(window.innerWidth)
 const isDesktop = computed(() => windowWidth.value >= 992)
 
-/* Menu */
-const menuItems = [
-  { key: 'home',     label: 'Home',    icon: 'bi-house-door', to: '/' },
-  { key: 'messages', label: 'Message', icon: 'bi-chat-dots',  to: '/messages' },
-]
+/* Menu — computed so labels update when locale changes */
+const menuItems = computed(() => [
+  { key: 'home',     label: t('nav.home'),    icon: 'bi-house-door', to: '/' },
+  { key: 'messages', label: t('nav.message'), icon: 'bi-chat-dots',  to: '/messages' },
+])
 
-const settingsItems = [
-  { key: 'settings', label: 'Settings',          icon: 'bi-gear',         to: '/settings' },
-  { key: 'privacy',  label: 'Privacy & Security', icon: 'bi-shield-check', to: '/privacy' },
-]
+const settingsItems = computed(() => [
+  { key: 'settings', label: t('nav.settings'), icon: 'bi-gear',         to: '/settings' },
+  { key: 'privacy',  label: t('nav.privacy'),  icon: 'bi-shield-check', to: '/privacy' },
+])
 
-const helpItems = [
-  { key: 'about', label: 'About Novia', icon: 'bi-info-circle',    to: '/about' },
-  { key: 'faq',   label: 'FAQ',         icon: 'bi-question-circle', to: '/faq' },
-  { key: 'help',  label: 'Help Center', icon: 'bi-life-preserver',  to: '/help' },
-]
+const helpItems = computed(() => [
+  { key: 'about', label: t('nav.about'), icon: 'bi-info-circle',    to: '/about' },
+  { key: 'faq',   label: t('nav.faq'),   icon: 'bi-question-circle', to: '/faq' },
+  { key: 'help',  label: t('nav.help'),  icon: 'bi-life-preserver',  to: '/help' },
+])
 
-const allItems = [...menuItems, ...settingsItems, ...helpItems]
+const allRoutes = [
+  { key: 'home', to: '/' }, { key: 'messages', to: '/messages' },
+  { key: 'settings', to: '/settings' }, { key: 'privacy', to: '/privacy' },
+  { key: 'about', to: '/about' }, { key: 'faq', to: '/faq' }, { key: 'help', to: '/help' },
+]
 
 /* Derive active key directly from the current route — no manual tracking */
 const activeItem = computed(() => {
-  const match = allItems.find(item => item.to === route.path)
+  const match = allRoutes.find(item => item.to === route.path)
   return match?.key ?? ''
 })
 

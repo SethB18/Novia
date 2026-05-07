@@ -1,6 +1,9 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { usePostStore } from '@/stores/post'
+
+const { t } = useI18n()
 import { useCategoryStore } from '@/stores/category'
 import { useToast } from 'vue-toast-notification'
 import PostCard from '@/components/PostCard.vue'
@@ -9,10 +12,11 @@ import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import ChatWidget from '@/components/ChatWidget.vue'
 import api from '@/api/http'
 
-const postStore     = usePostStore()
-const categoryStore = useCategoryStore()
-const loading       = ref(true)
-const $toast        = useToast()
+const postStore      = usePostStore()
+const categoryStore  = useCategoryStore()
+const loading        = ref(true)
+const $toast         = useToast()
+const createPostRef  = ref(null)
 const searchTab     = ref('feed') // 'feed' | 'people'
 
 // Reset tab to feed and scroll to top on every new search
@@ -62,6 +66,10 @@ const handlePostCreated = async () => {
   } catch {
     $toast.error('Failed to refresh posts')
   }
+}
+
+const handleEditPost = (post) => {
+  createPostRef.value?.openForEdit(post)
 }
 
 const filterByCategory = async (categoryId) => {
@@ -118,7 +126,7 @@ function userAvatar(user) {
           <div class="col-feed">
             <div class="card create-post-card">
               <div class="card-body">
-                <CreatePostView @post-created="handlePostCreated" />
+                <CreatePostView ref="createPostRef" @post-created="handlePostCreated" />
               </div>
             </div>
 
@@ -129,14 +137,14 @@ function userAvatar(user) {
                 :class="{ active: searchTab === 'feed' }"
                 @click="searchTab = 'feed'"
               >
-                <i class="bi bi-newspaper"></i> Feed
+                <i class="bi bi-newspaper"></i> {{ t('home.feedTab') }}
               </button>
               <button
                 class="stab"
                 :class="{ active: searchTab === 'people' }"
                 @click="searchTab = 'people'"
               >
-                <i class="bi bi-people-fill"></i> People
+                <i class="bi bi-people-fill"></i> {{ t('home.peopleTab') }}
                 <span v-if="postStore.searchUsers.length" class="stab-badge">{{ postStore.searchUsers.length }}</span>
               </button>
             </div>
@@ -146,14 +154,14 @@ function userAvatar(user) {
               <div v-if="loading && postStore.posts.length === 0" class="card text-center">
                 <div class="card-body">
                   <div class="spinner"></div>
-                  <p class="card-text">Loading posts...</p>
+                  <p class="card-text">{{ t('home.loadingPosts') }}</p>
                 </div>
               </div>
 
               <div v-else-if="postStore.posts.length > 0">
                 <div v-for="post in postStore.posts" :key="post.id" class="card post-card">
                   <div class="card-body">
-                    <PostCard :post="post" />
+                    <PostCard :post="post" @edit="handleEditPost" />
                   </div>
                 </div>
               </div>
@@ -161,15 +169,15 @@ function userAvatar(user) {
               <div v-else class="card text-center">
                 <div class="card-body">
                   <i class="bi bi-newspaper empty-icon"></i>
-                  <h4 class="card-title">No posts yet</h4>
-                  <p class="card-text">Be the first to share something!</p>
+                  <h4 class="card-title">{{ t('home.noPostsTitle') }}</h4>
+                  <p class="card-text">{{ t('home.noPostsDesc') }}</p>
                 </div>
               </div>
 
               <div v-if="postStore.pagination?.has_more_pages" class="load-more">
                 <button class="btn-load" @click="loadMorePosts" :disabled="loading">
                   <span v-if="loading" class="spinner small"></span>
-                  Load More Posts
+                  {{ t('home.loadMore') }}
                 </button>
               </div>
             </template>
@@ -179,8 +187,8 @@ function userAvatar(user) {
               <div v-if="postStore.searchUsers.length === 0" class="card text-center">
                 <div class="card-body">
                   <i class="bi bi-person-x empty-icon"></i>
-                  <h4 class="card-title">No people found</h4>
-                  <p class="card-text">Try a different search term.</p>
+                  <h4 class="card-title">{{ t('home.noPeopleFound') }}</h4>
+                  <p class="card-text">{{ t('home.tryDifferentSearch') }}</p>
                 </div>
               </div>
 
@@ -196,9 +204,9 @@ function userAvatar(user) {
                       <img :src="userAvatar(u)" class="search-person-av" :alt="u.full_name" />
                       <div class="search-person-info">
                         <p class="search-person-name">{{ u.full_name }}</p>
-                        <p class="search-person-role">{{ u.professional?.job_title || 'User' }}</p>
+                        <p class="search-person-role">{{ u.professional?.job_title || t('common.user') }}</p>
                       </div>
-                      <span class="search-person-btn">View Profile</span>
+                      <span class="search-person-btn">{{ t('home.viewProfile') }}</span>
                     </router-link>
                   </div>
                 </div>
@@ -213,7 +221,7 @@ function userAvatar(user) {
               <!-- Categories -->
               <div class="card">
                 <div class="card-body">
-                  <h6 class="card-title">Categories</h6>
+                  <h6 class="card-title">{{ t('home.categories') }}</h6>
                   <div v-if="categoryStore.loading" class="text-center">
                     <div class="spinner small"></div>
                   </div>
@@ -234,7 +242,7 @@ function userAvatar(user) {
               <!-- People You May Know -->
               <div class="card">
                 <div class="card-body">
-                  <h6 class="card-title">People You May Know</h6>
+                  <h6 class="card-title">{{ t('home.peopleYouMayKnow') }}</h6>
 
                   <div v-if="loadingPeople" class="text-center">
                     <div class="spinner small"></div>
@@ -253,18 +261,18 @@ function userAvatar(user) {
                         <router-link :to="`/profile/${person.id}`" class="person-name">
                           {{ person.full_name }}
                         </router-link>
-                        <p class="person-role">{{ person.professional?.job_title || 'User' }}</p>
+                        <p class="person-role">{{ person.professional?.job_title || t('common.user') }}</p>
                       </div>
                       <router-link
                         :to="`/profile/${person.id}`"
                         class="person-view-btn"
-                        title="View profile"
-                      >View</router-link>
+                        :title="t('home.viewProfile')"
+                      >{{ t('home.view') }}</router-link>
                     </div>
                   </template>
 
                   <div v-else class="people-empty">
-                    <p>Search for people using the search bar above.</p>
+                    <p>{{ t('home.searchForPeople') }}</p>
                   </div>
                 </div>
               </div>

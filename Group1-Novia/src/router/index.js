@@ -22,6 +22,7 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+      meta: { require: true },
     },
     {
       path: '/about',
@@ -56,7 +57,8 @@ const router = createRouter({
     {
       path: '/landing',
       name: 'landing',
-      component: LandingView
+      component: LandingView,
+      meta: { guestOnly: true },
     },
     {
       path: '/profileDetail',
@@ -101,12 +103,6 @@ const router = createRouter({
       meta: { require: true },
     },
     {
-      path: '/create-post',
-      name: 'CreatePost',
-      component: () => import('@/views/CreatePostView.vue'),
-      meta: { require: true },
-    },
-    {
       path: '/messages',
       name: 'messages',
       component: MessagePanelView,
@@ -140,7 +136,16 @@ router.beforeEach((to) => {
   const auth = useAuthStores()
 
   if (!auth.isLoggedIn && to.meta.require) {
-    return { name: 'login' }
+    return { name: 'landing' }
+  }
+
+  if (auth.isLoggedIn && to.meta.guestOnly) {
+    return { name: 'home' }
+  }
+
+  // Redirect own profile ID to the self-profile view
+  if (to.name === 'profileById' && auth.user?.id && Number(to.params.id) === auth.user.id) {
+    return { name: 'profile' }
   }
 
   return true

@@ -7,57 +7,42 @@
             <i class="bi bi-shield-lock-fill"></i>
           </div>
           <div>
-            <h1 class="page-title">Privacy &amp; Security</h1>
-            <p class="page-subtitle">
-              Keep your account trusted by completing identity and certificate review.
-            </p>
+            <h1 class="page-title">{{ t('privacy.title') }}</h1>
+            <p class="page-subtitle">{{ t('privacy.subtitle') }}</p>
           </div>
         </header>
 
         <section class="card-block">
           <div class="card-head">
-            <h2>ID Card Review</h2>
-            <span class="status-chip pending">Pending Review</span>
+            <h2>{{ t('privacy.idCard.title') }}</h2>
+            <span class="status-chip pending">{{ t('privacy.idCard.pending') }}</span>
           </div>
-          <p class="card-text">
-            Submit your national ID card to verify your identity. This helps protect your account
-            and improves trust when connecting with other users.
-          </p>
+          <p class="card-text">{{ t('privacy.idCard.desc') }}</p>
           <ul class="info-list">
-            <li>Upload a clear photo of the front side of your ID card.</li>
-            <li>Full name and date of birth must be readable.</li>
-            <li>Blurred, cropped, or expired ID cards may be rejected.</li>
+            <li>{{ t('privacy.idCard.li0') }}</li>
+            <li>{{ t('privacy.idCard.li1') }}</li>
+            <li>{{ t('privacy.idCard.li2') }}</li>
           </ul>
-          <p class="note">
-            Review time: usually within 1-2 business days.
-          </p>
+          <p class="note">{{ t('privacy.idCard.reviewTime') }}</p>
         </section>
 
         <section class="card-block">
           <div class="card-head">
-            <h2>Certificate Review</h2>
-            <span class="status-chip pending">Pending Review</span>
+            <h2>{{ t('privacy.cert.title') }}</h2>
+            <span class="status-chip pending">{{ t('privacy.cert.pending') }}</span>
           </div>
-          <p class="card-text">
-            Add academic or professional certificates to strengthen your profile and demonstrate
-            your qualifications.
-          </p>
+          <p class="card-text">{{ t('privacy.cert.desc') }}</p>
           <ul class="info-list">
-            <li>Upload certificates in PDF or image format.</li>
-            <li>Include your full name and certificate title.</li>
-            <li>Documents with missing details may require resubmission.</li>
+            <li>{{ t('privacy.cert.li0') }}</li>
+            <li>{{ t('privacy.cert.li1') }}</li>
+            <li>{{ t('privacy.cert.li2') }}</li>
           </ul>
-          <p class="note">
-            Review time: usually within 2-3 business days.
-          </p>
+          <p class="note">{{ t('privacy.cert.reviewTime') }}</p>
         </section>
 
         <section class="card-block muted">
-          <h3>Privacy Notice</h3>
-          <p>
-            Your uploaded documents are only used for verification and account safety. They are not
-            shared publicly on your profile.
-          </p>
+          <h3>{{ t('privacy.notice.title') }}</h3>
+          <p>{{ t('privacy.notice.desc') }}</p>
         </section>
       </div>
     </div>
@@ -65,7 +50,9 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
+const { t } = useI18n()
 </script>
 
 <style scoped>

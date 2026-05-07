@@ -4,8 +4,8 @@
     <div class="message-header">
       <div class="d-flex align-items-center justify-content-between">
         <div>
-          <h2 class="message-title">Messages</h2>
-          <p class="message-subtitle">Stay connected with your network</p>
+          <h2 class="message-title">{{ t('messages.title') }}</h2>
+          <p class="message-subtitle">{{ t('messages.subtitle') }}</p>
         </div>
         <button class="btn btn-close-panel" @click="closePanel">
           <i class="bi bi-x-lg"></i>
@@ -23,7 +23,7 @@
             <input
               type="text"
               class="form-control search-input"
-              placeholder="Search conversations..."
+              :placeholder="t('messages.searchPlaceholder')"
               v-model="searchQuery"
             />
           </div>
@@ -31,12 +31,12 @@
 
         <div v-if="msgStore.loading" class="loading-state">
           <div class="sp"></div>
-          <p>Loading messages…</p>
+          <p>{{ t('messages.loading') }}</p>
         </div>
 
         <div v-else-if="filteredConversations.length === 0" class="empty-conv">
           <i class="bi bi-chat-dots"></i>
-          <p>No conversations yet</p>
+          <p>{{ t('messages.noConversations') }}</p>
         </div>
 
         <div v-else class="conversations-list">
@@ -60,7 +60,7 @@
                 <span class="conversation-time">{{ timeAgo(conv.created_at) }}</span>
               </div>
               <p class="conversation-message">
-                <span v-if="conv.isOwn" class="you-prefix">You: </span>{{ truncate(conv.message, 40) }}
+                <span v-if="conv.isOwn" class="you-prefix">{{ t('messages.youPrefix') }}</span>{{ truncate(conv.message, 40) }}
               </p>
             </div>
           </div>
@@ -80,7 +80,7 @@
                 <div class="chat-info">
                   <h6 class="chat-name">{{ activePartner.full_name }}</h6>
                   <router-link :to="`/profile/${activePartner.id}`" class="view-profile-link">
-                    View profile
+                    {{ t('messages.viewProfile') }}
                   </router-link>
                 </div>
               </div>
@@ -91,7 +91,7 @@
           <div class="messages-list" ref="messagesContainer">
             <div v-if="thread.length === 0" class="no-messages">
               <i class="bi bi-chat-heart"></i>
-              <p>Say hello to {{ activePartner.full_name }}!</p>
+              <p>{{ t('messages.sayHello', { name: activePartner.full_name }) }}</p>
             </div>
 
             <div
@@ -130,7 +130,7 @@
             <div class="input-wrapper">
               <textarea
                 class="form-control message-textarea"
-                placeholder="Type your message…"
+                :placeholder="t('messages.typePlaceholder')"
                 v-model="draft"
                 @keydown.enter.exact.prevent="sendMessage"
                 rows="1"
@@ -146,8 +146,8 @@
         <!-- Empty State -->
         <div v-else class="empty-state">
           <div class="empty-icon"><i class="bi bi-chat-dots"></i></div>
-          <h5>Select a conversation</h5>
-          <p>Choose a conversation from the list to start messaging</p>
+          <h5>{{ t('messages.selectConversation') }}</h5>
+          <p>{{ t('messages.selectConversationDesc') }}</p>
         </div>
       </div>
     </div>
@@ -157,7 +157,10 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useMessageStore } from '@/stores/message'
+
+const { t } = useI18n()
 import { useAuthStores } from '@/stores/auth'
 import api from '@/api/http'
 

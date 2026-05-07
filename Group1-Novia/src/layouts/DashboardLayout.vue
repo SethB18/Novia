@@ -67,7 +67,6 @@ onUnmounted(() => {
   width: 100%;
   min-height: 100vh;
   /* background-color: #0f172a; */
-  margin-left: 120px;
   /* Dark futuristic base */
   /* background-image:
     radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
@@ -88,7 +87,7 @@ onUnmounted(() => {
 .main-content {
   /* width: 1000px; */
   flex: 1;
-  margin-left: 200px;
+  margin-left: 260px;
   /* Match sidebar width exactly */
   min-height: calc(100vh - 70px);
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);

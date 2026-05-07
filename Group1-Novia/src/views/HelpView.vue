@@ -1,6 +1,8 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { useRouter } from 'vue-router'
+const { t } = useI18n()
 const router = useRouter()
 </script>
 
@@ -15,8 +17,8 @@ const router = useRouter()
             <i class="bi bi-life-preserver"></i>
           </div>
           <div>
-            <h1>Help Center</h1>
-            <p>Everything you need to get the most out of Novia.</p>
+            <h1>{{ t('help.title') }}</h1>
+            <p>{{ t('help.subtitle') }}</p>
           </div>
         </div>
 
@@ -27,14 +29,14 @@ const router = useRouter()
             <div class="topic-icon profile">
               <i class="bi bi-person-circle"></i>
             </div>
-            <h3>Setting Up Your Profile</h3>
+            <h3>{{ t('help.profile.title') }}</h3>
             <ul>
-              <li>Go to <strong>My Profile</strong> from the top navigation or avatar menu.</li>
-              <li>Upload a profile photo and cover image using the camera icons.</li>
-              <li>Click <strong>Edit Profile</strong> to fill in your name, location, phone, and date of birth.</li>
-              <li>Add your <strong>Professional</strong> details — job title and company.</li>
-              <li>Use the <strong>Skills</strong> button to add or search for your technical skills.</li>
-              <li>In the <strong>CV tab</strong>, upload your resume (PDF, DOC, or DOCX).</li>
+              <li v-html="t('help.profile.li0')"></li>
+              <li v-html="t('help.profile.li1')"></li>
+              <li v-html="t('help.profile.li2')"></li>
+              <li v-html="t('help.profile.li3')"></li>
+              <li v-html="t('help.profile.li4')"></li>
+              <li v-html="t('help.profile.li5')"></li>
             </ul>
           </div>
 
@@ -42,13 +44,13 @@ const router = useRouter()
             <div class="topic-icon post">
               <i class="bi bi-pencil-square"></i>
             </div>
-            <h3>Creating a Post</h3>
+            <h3>{{ t('help.post.title') }}</h3>
             <ul>
-              <li>Click the <strong>Create Post</strong> button in the top navigation bar.</li>
-              <li>Write your content in the editor. You can attach images or files.</li>
-              <li>Choose a <strong>category</strong> — Community, Job, Event, or Project.</li>
-              <li>Hit <strong>Publish</strong> to share with the community.</li>
-              <li>Your post will appear on the Home feed for all users to see.</li>
+              <li v-html="t('help.post.li0')"></li>
+              <li v-html="t('help.post.li1')"></li>
+              <li v-html="t('help.post.li2')"></li>
+              <li v-html="t('help.post.li3')"></li>
+              <li v-html="t('help.post.li4')"></li>
             </ul>
           </div>
 
@@ -56,12 +58,12 @@ const router = useRouter()
             <div class="topic-icon message">
               <i class="bi bi-chat-dots-fill"></i>
             </div>
-            <h3>Sending Messages</h3>
+            <h3>{{ t('help.messages.title') }}</h3>
             <ul>
-              <li>Open the <strong>Message</strong> page from the left sidebar.</li>
-              <li>Use the search to find a user by name, then start a conversation.</li>
-              <li>You can also click the <strong>Message</strong> button on someone's profile to start chatting directly.</li>
-              <li>Messages are real-time — replies appear instantly.</li>
+              <li v-html="t('help.messages.li0')"></li>
+              <li v-html="t('help.messages.li1')"></li>
+              <li v-html="t('help.messages.li2')"></li>
+              <li v-html="t('help.messages.li3')"></li>
             </ul>
           </div>
 
@@ -69,12 +71,12 @@ const router = useRouter()
             <div class="topic-icon collab">
               <i class="bi bi-building"></i>
             </div>
-            <h3>Adding Collaboration Info</h3>
+            <h3>{{ t('help.collab.title') }}</h3>
             <ul>
-              <li>Go to your profile and click the <strong>Collaboration</strong> tab.</li>
-              <li>Upload your company or organization logo.</li>
-              <li>Add the company website or portfolio link.</li>
-              <li>This info will be visible to anyone viewing your public profile, helping companies find you.</li>
+              <li v-html="t('help.collab.li0')"></li>
+              <li v-html="t('help.collab.li1')"></li>
+              <li v-html="t('help.collab.li2')"></li>
+              <li v-html="t('help.collab.li3')"></li>
             </ul>
           </div>
 
@@ -82,13 +84,13 @@ const router = useRouter()
             <div class="topic-icon edu">
               <i class="bi bi-mortarboard-fill"></i>
             </div>
-            <h3>Managing Education</h3>
+            <h3>{{ t('help.edu.title') }}</h3>
             <ul>
-              <li>Navigate to <strong>Edit Education</strong> from your profile.</li>
-              <li>Add your school, degree type, and major/subject.</li>
-              <li>Set your start and end dates (or mark "Currently Studying").</li>
-              <li>Add an optional description of your studies.</li>
-              <li>Edit or delete existing entries using the buttons in the timeline.</li>
+              <li v-html="t('help.edu.li0')"></li>
+              <li v-html="t('help.edu.li1')"></li>
+              <li v-html="t('help.edu.li2')"></li>
+              <li v-html="t('help.edu.li3')"></li>
+              <li v-html="t('help.edu.li4')"></li>
             </ul>
           </div>
 
@@ -96,13 +98,13 @@ const router = useRouter()
             <div class="topic-icon security">
               <i class="bi bi-shield-check"></i>
             </div>
-            <h3>Account & Security</h3>
+            <h3>{{ t('help.security.title') }}</h3>
             <ul>
-              <li>Go to <strong>Settings</strong> from the sidebar to update your preferences.</li>
-              <li>Visit <strong>Privacy & Security</strong> to change your password.</li>
-              <li>Use a strong password (8+ characters, mix of letters and numbers).</li>
-              <li>Log out after using shared devices to keep your account secure.</li>
-              <li>Contact the admin if you believe your account has been compromised.</li>
+              <li v-html="t('help.security.li0')"></li>
+              <li v-html="t('help.security.li1')"></li>
+              <li v-html="t('help.security.li2')"></li>
+              <li v-html="t('help.security.li3')"></li>
+              <li v-html="t('help.security.li4')"></li>
             </ul>
           </div>
 
@@ -112,11 +114,11 @@ const router = useRouter()
         <div class="contact-note">
           <i class="bi bi-envelope-fill"></i>
           <div>
-            <strong>Still need help?</strong>
-            <p>Contact the Novia support team or your platform administrator for account issues, verification problems, or technical errors.</p>
+            <strong>{{ t('help.contact.title') }}</strong>
+            <p>{{ t('help.contact.desc') }}</p>
           </div>
           <button class="btn-faq" @click="router.push('/faq')">
-            <i class="bi bi-question-circle"></i> Read FAQ
+            <i class="bi bi-question-circle"></i> {{ t('help.contact.btn') }}
           </button>
         </div>
 

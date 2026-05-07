@@ -5,7 +5,7 @@
     <div class="cw-header" @click="widgetOpen = !widgetOpen">
       <div class="cw-header-left">
         <MessageCircle :size="15" />
-        <span>Chat</span>
+        <span>{{ t('chat.title') }}</span>
         <span class="cw-unread-dot" v-if="unreadCount > 0">{{ unreadCount }}</span>
       </div>
       <ChevronUp :size="14" :class="['cw-chevron', { rotated: !widgetOpen }]" />
@@ -17,7 +17,7 @@
 
         <!-- Loading -->
         <div v-if="msgStore.loading" class="cw-loading">
-          <Loader2 :size="16" class="spin" /> Loading…
+          <Loader2 :size="16" class="spin" /> {{ t('chat.loading') }}
         </div>
 
         <!-- Conversation list -->
@@ -27,7 +27,7 @@
             class="cw-empty"
           >
             <MessageCircle :size="22" />
-            <p>No conversations yet</p>
+            <p>{{ t('chat.noConversations') }}</p>
           </div>
 
           <div v-else class="cw-conv-list">
@@ -48,7 +48,7 @@
               <div class="cw-conv-info">
                 <p class="cw-conv-name">{{ conv.partner.full_name }}</p>
                 <p class="cw-conv-last">
-                  <span v-if="conv.isOwn" class="cw-you">You: </span>
+                  <span v-if="conv.isOwn" class="cw-you">{{ t('chat.youPrefix') }}</span>
                   {{ truncate(conv.message, 28) }}
                 </p>
               </div>
@@ -74,7 +74,7 @@
           <div class="cwc-info">
             <p class="cwc-name">{{ activePartner.full_name }}</p>
             <router-link :to="`/profile/${activePartner.id}`" class="cwc-profile-link">
-              View profile
+              {{ t('chat.viewProfile') }}
             </router-link>
           </div>
           <button class="cwc-close" @click="activePartner = null"><X :size="14" /></button>
@@ -95,7 +95,7 @@
           </div>
 
           <div v-if="thread.length === 0" class="cwc-no-msg">
-            Say hello to {{ activePartner.full_name }}!
+            {{ t('chat.sayHello', { name: activePartner.full_name }) }}
           </div>
         </div>
 
@@ -104,7 +104,7 @@
           <textarea
             v-model="draft"
             class="cwc-input"
-            placeholder="Write a message…"
+            :placeholder="t('chat.writePlaceholder')"
             rows="1"
             @keydown.enter.exact.prevent="submit"
           />
@@ -123,8 +123,11 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { MessageCircle, ChevronUp, X, Send, Loader2 } from 'lucide-vue-next'
 import { useMessageStore } from '@/stores/message'
+
+const { t } = useI18n()
 
 const msgStore    = ref(useMessageStore())
 const widgetOpen  = ref(true)

@@ -10,8 +10,8 @@
 
               <!-- Header -->
               <div class="login-header text-center">
-                <h2 class="card-title">Welcome Back</h2>
-                <p class="card-text">Sign in to your account</p>
+                <h2 class="card-title">{{ t('auth.login.title') }}</h2>
+                <p class="card-text">{{ t('auth.login.subtitle') }}</p>
               </div>
 
               <!-- Form -->
@@ -19,12 +19,12 @@
 
                 <!-- Email or Phone -->
                 <div class="form-group">
-                  <label class="custom-label">Email or Phone</label>
+                  <label class="custom-label">{{ t('auth.login.emailOrPhone') }}</label>
                   <input
                     v-model="email_or_phone"
                     type="text"
                     class="custom-input"
-                    placeholder="Enter your email or phone"
+                    :placeholder="t('auth.login.emailOrPhonePlaceholder')"
                   />
                   <p v-if="err.email_or_phone" class="field-error">
                     {{ err.email_or_phone }}
@@ -33,13 +33,13 @@
 
                 <!-- Password -->
                 <div class="form-group">
-                  <label class="custom-label">Password</label>
+                  <label class="custom-label">{{ t('auth.login.password') }}</label>
                   <div class="input-group">
                     <input
                       v-model="password"
                       :type="passwordType"
                       class="custom-input"
-                      placeholder="Enter your password"
+                      :placeholder="t('auth.login.passwordPlaceholder')"
                     />
                     <span class="password-eye" @click="togglePassword">
                       <i :class="showPassword ? 'bi bi-eye' : 'bi bi-eye-slash'"></i>
@@ -55,12 +55,12 @@
                   <div class="col-6">
                     <label class="remember-label">
                       <input type="checkbox" v-model="rememberMe" class="custom-check" />
-                      Remember me
+                      {{ t('auth.login.rememberMe') }}
                     </label>
                   </div>
                   <div class="col-6 text-end">
                     <router-link to="/forget-password" class="forgot-link">
-                      Forgot password?
+                      {{ t('auth.login.forgotPassword') }}
                     </router-link>
                   </div>
                 </div>
@@ -72,14 +72,14 @@
                   :disabled="isLoading"
                 >
                   <span v-if="isLoading" class="spinner-border spinner-border-sm"></span>
-                  <span v-else>Sign In</span>
+                  <span v-else>{{ t('auth.login.signIn') }}</span>
                 </button>
 
                 <!-- Redirect -->
                 <p class="redirect-text text-center">
-                  Don’t have an account?
+                  {{ t('auth.login.noAccount') }}
                   <router-link to="/register" class="register-link">
-                    Register
+                    {{ t('auth.login.register') }}
                   </router-link>
                 </p>
 
@@ -97,7 +97,10 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStores } from '@/stores/auth'
+
+const { t } = useI18n()
 import { notify } from '@/utils/toast'
 
 const router = useRouter()
@@ -125,11 +128,11 @@ const togglePassword = () => {
 
 function validator() {
   err.email_or_phone = !email_or_phone.value.trim()
-    ? 'Email or phone is required'
+    ? t('auth.login.errors.emailRequired')
     : ''
 
   err.password = !password.value.trim()
-    ? 'Password is required'
+    ? t('auth.login.errors.passwordRequired')
     : ''
 
   return !err.email_or_phone && !err.password

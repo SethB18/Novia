@@ -1,6 +1,8 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { useRouter } from 'vue-router'
+const { t } = useI18n()
 const router = useRouter()
 </script>
 
@@ -16,7 +18,7 @@ const router = useRouter()
           </div>
           <div class="hero-text">
             <h1>About <span class="brand">Novia</span></h1>
-            <p>A Tech Community built for developers, designers, and creators — where talent meets opportunity.</p>
+            <p>{{ t('about.heroDesc') }}</p>
           </div>
         </div>
 
@@ -24,8 +26,8 @@ const router = useRouter()
         <div class="mission-banner">
           <i class="bi bi-rocket-takeoff-fill mission-icon"></i>
           <div>
-            <strong>Our Mission</strong>
-            <p>To connect tech professionals across Cambodia and Southeast Asia through shared knowledge, job opportunities, and meaningful events.</p>
+            <strong>{{ t('about.mission.title') }}</strong>
+            <p>{{ t('about.mission.desc') }}</p>
           </div>
         </div>
 
@@ -36,17 +38,13 @@ const router = useRouter()
             <div class="pillar-icon community">
               <i class="bi bi-people-fill"></i>
             </div>
-            <h3>Tech Community</h3>
-            <p>
-              Novia is a space where developers, designers, students, and tech professionals connect.
-              Share posts, showcase your projects, discover what others are building, and grow your
-              professional network — all in one place.
-            </p>
+            <h3>{{ t('about.community.title') }}</h3>
+            <p>{{ t('about.community.desc') }}</p>
             <ul class="pillar-list">
-              <li><i class="bi bi-check2-circle"></i> Create a professional profile with CV & skills</li>
-              <li><i class="bi bi-check2-circle"></i> Share tech ideas, news, and projects</li>
-              <li><i class="bi bi-check2-circle"></i> Direct message anyone in the network</li>
-              <li><i class="bi bi-check2-circle"></i> Collaborate with companies and teams</li>
+              <li><i class="bi bi-check2-circle"></i> {{ t('about.community.li0') }}</li>
+              <li><i class="bi bi-check2-circle"></i> {{ t('about.community.li1') }}</li>
+              <li><i class="bi bi-check2-circle"></i> {{ t('about.community.li2') }}</li>
+              <li><i class="bi bi-check2-circle"></i> {{ t('about.community.li3') }}</li>
             </ul>
           </div>
 
@@ -54,17 +52,13 @@ const router = useRouter()
             <div class="pillar-icon jobs">
               <i class="bi bi-briefcase-fill"></i>
             </div>
-            <h3>Jobs & Opportunities</h3>
-            <p>
-              Looking for your next role, freelance gig, or internship? Novia lets companies and
-              recruiters post opportunities directly to the tech community. Upload your CV and let
-              the right people find you.
-            </p>
+            <h3>{{ t('about.jobs.title') }}</h3>
+            <p>{{ t('about.jobs.desc') }}</p>
             <ul class="pillar-list">
-              <li><i class="bi bi-check2-circle"></i> Browse tech job postings</li>
-              <li><i class="bi bi-check2-circle"></i> Upload your resume / CV</li>
-              <li><i class="bi bi-check2-circle"></i> Showcase your portfolio and experience</li>
-              <li><i class="bi bi-check2-circle"></i> Get discovered by companies</li>
+              <li><i class="bi bi-check2-circle"></i> {{ t('about.jobs.li0') }}</li>
+              <li><i class="bi bi-check2-circle"></i> {{ t('about.jobs.li1') }}</li>
+              <li><i class="bi bi-check2-circle"></i> {{ t('about.jobs.li2') }}</li>
+              <li><i class="bi bi-check2-circle"></i> {{ t('about.jobs.li3') }}</li>
             </ul>
           </div>
 
@@ -72,17 +66,13 @@ const router = useRouter()
             <div class="pillar-icon events">
               <i class="bi bi-calendar-event-fill"></i>
             </div>
-            <h3>Events & Meetups</h3>
-            <p>
-              Stay connected with the local tech scene. Novia surfaces hackathons, workshops,
-              webinars, and networking events so you never miss a chance to learn, compete, or
-              meet like-minded people.
-            </p>
+            <h3>{{ t('about.events.title') }}</h3>
+            <p>{{ t('about.events.desc') }}</p>
             <ul class="pillar-list">
-              <li><i class="bi bi-check2-circle"></i> Discover upcoming tech events</li>
-              <li><i class="bi bi-check2-circle"></i> Post and promote your own events</li>
-              <li><i class="bi bi-check2-circle"></i> Join hackathons and coding competitions</li>
-              <li><i class="bi bi-check2-circle"></i> Connect with speakers and organizers</li>
+              <li><i class="bi bi-check2-circle"></i> {{ t('about.events.li0') }}</li>
+              <li><i class="bi bi-check2-circle"></i> {{ t('about.events.li1') }}</li>
+              <li><i class="bi bi-check2-circle"></i> {{ t('about.events.li2') }}</li>
+              <li><i class="bi bi-check2-circle"></i> {{ t('about.events.li3') }}</li>
             </ul>
           </div>
 
@@ -90,34 +80,34 @@ const router = useRouter()
 
         <!-- How it works -->
         <div class="section-card">
-          <h2><i class="bi bi-diagram-3-fill"></i> How It Works</h2>
+          <h2><i class="bi bi-diagram-3-fill"></i> {{ t('about.howItWorks.title') }}</h2>
           <div class="steps">
             <div class="step">
               <div class="step-num">1</div>
               <div>
-                <strong>Create Your Profile</strong>
-                <p>Sign up and build your professional profile. Add your skills, education, work experience, CV, and collaboration details.</p>
+                <strong>{{ t('about.howItWorks.s1title') }}</strong>
+                <p>{{ t('about.howItWorks.s1desc') }}</p>
               </div>
             </div>
             <div class="step">
               <div class="step-num">2</div>
               <div>
-                <strong>Explore the Community</strong>
-                <p>Browse posts from other tech professionals. Discover jobs, events, and projects being shared across the platform.</p>
+                <strong>{{ t('about.howItWorks.s2title') }}</strong>
+                <p>{{ t('about.howItWorks.s2desc') }}</p>
               </div>
             </div>
             <div class="step">
               <div class="step-num">3</div>
               <div>
-                <strong>Share & Engage</strong>
-                <p>Publish your own posts — share what you're working on, a job you're hiring for, or an upcoming event you're organizing.</p>
+                <strong>{{ t('about.howItWorks.s3title') }}</strong>
+                <p>{{ t('about.howItWorks.s3desc') }}</p>
               </div>
             </div>
             <div class="step">
               <div class="step-num">4</div>
               <div>
-                <strong>Connect & Collaborate</strong>
-                <p>Message professionals directly, visit their profiles, and build real working relationships in the tech space.</p>
+                <strong>{{ t('about.howItWorks.s4title') }}</strong>
+                <p>{{ t('about.howItWorks.s4desc') }}</p>
               </div>
             </div>
           </div>
@@ -127,15 +117,15 @@ const router = useRouter()
         <div class="quick-links">
           <button class="ql-btn" @click="router.push('/faq')">
             <i class="bi bi-question-circle-fill"></i>
-            <span>Read the FAQ</span>
+            <span>{{ t('about.links.faq') }}</span>
           </button>
           <button class="ql-btn" @click="router.push('/help')">
             <i class="bi bi-life-preserver"></i>
-            <span>Visit Help Center</span>
+            <span>{{ t('about.links.help') }}</span>
           </button>
           <button class="ql-btn" @click="router.push('/')">
             <i class="bi bi-house-door-fill"></i>
-            <span>Back to Home</span>
+            <span>{{ t('about.links.home') }}</span>
           </button>
         </div>
 

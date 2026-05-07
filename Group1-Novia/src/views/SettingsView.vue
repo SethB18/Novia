@@ -10,8 +10,8 @@
                             <i class="bi bi-gear-wide-connected"></i>
                         </div>
                         <div>
-                            <h1 class="page-title">Settings</h1>
-                            <p class="page-subtitle">Manage your account security and preferences</p>
+                            <h1 class="page-title">{{ t('settings.title') }}</h1>
+                            <p class="page-subtitle">{{ t('settings.subtitle') }}</p>
                         </div>
                     </div>
                 </header>
@@ -25,8 +25,8 @@
                                     <i class="bi bi-shield-lock-fill"></i>
                                 </div>
                                 <div>
-                                    <h2 class="section-title">Security</h2>
-                                    <p class="section-desc">Update your password to keep your account secure</p>
+                                    <h2 class="section-title">{{ t('settings.security.title') }}</h2>
+                                    <p class="section-desc">{{ t('settings.security.desc') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -34,12 +34,12 @@
                         <form @submit.prevent="handlePasswordChange" class="settings-form">
                             <!-- Current Password -->
                             <div class="form-group">
-                                <label class="form-label">Current Password</label>
+                                <label class="form-label">{{ t('settings.currentPassword') }}</label>
                                 <div class="input-group">
                                     <span class="input-icon"><i class="bi bi-key-fill"></i></span>
                                     <input :type="showCurrent ? 'text' : 'password'" v-model="passwordForm.current"
                                         class="form-control" :class="{ 'is-invalid': errors.current }"
-                                        placeholder="Enter current password" />
+                                        :placeholder="t('settings.currentPasswordPlaceholder')" />
                                     <button type="button" class="toggle-btn" @click="showCurrent = !showCurrent">
                                         <i :class="showCurrent ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
                                     </button>
@@ -51,12 +51,12 @@
 
                             <!-- New Password -->
                             <div class="form-group">
-                                <label class="form-label">New Password</label>
+                                <label class="form-label">{{ t('settings.newPassword') }}</label>
                                 <div class="input-group">
                                     <span class="input-icon"><i class="bi bi-lock-fill"></i></span>
                                     <input :type="showNew ? 'text' : 'password'" v-model="passwordForm.new"
                                         class="form-control" :class="{ 'is-invalid': errors.new }"
-                                        placeholder="Enter new password" />
+                                        :placeholder="t('settings.newPasswordPlaceholder')" />
                                     <button type="button" class="toggle-btn" @click="showNew = !showNew">
                                         <i :class="showNew ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
                                     </button>
@@ -64,18 +64,18 @@
                                 <span v-if="errors.new" class="error-text">{{ errors.new }}</span>
                                 <small class="form-hint">
                                     <i class="bi bi-info-circle"></i>
-                                    Must be at least 6 characters
+                                    {{ t('settings.passwordHint') }}
                                 </small>
                             </div>
 
                             <!-- Confirm Password -->
                             <div class="form-group">
-                                <label class="form-label">Confirm New Password</label>
+                                <label class="form-label">{{ t('settings.confirmPassword') }}</label>
                                 <div class="input-group">
                                     <span class="input-icon"><i class="bi bi-check-circle-fill"></i></span>
                                     <input :type="showConfirm ? 'text' : 'password'" v-model="passwordForm.confirm"
                                         class="form-control" :class="{ 'is-invalid': errors.confirm }"
-                                        placeholder="Confirm new password" />
+                                        :placeholder="t('settings.confirmPasswordPlaceholder')" />
                                     <button type="button" class="toggle-btn" @click="showConfirm = !showConfirm">
                                         <i :class="showConfirm ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
                                     </button>
@@ -96,7 +96,7 @@
                                 <button type="submit" class="btn btn-primary btn-glow" :disabled="isLoading">
                                     <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>
                                     <i v-else class="bi bi-arrow-repeat me-2"></i>
-                                    {{ isLoading ? 'Updating...' : 'Update Password' }}
+                                    {{ isLoading ? t('settings.updating') : t('settings.updatePassword') }}
                                 </button>
                             </div>
                         </form>
@@ -112,27 +112,21 @@
                                     <i class="bi bi-exclamation-triangle-fill"></i>
                                 </div>
                                 <div>
-                                    <h2 class="section-title text-danger">Danger Zone</h2>
-                                    <p class="section-desc">Irreversible and destructive actions</p>
+                                    <h2 class="section-title text-danger">{{ t('settings.dangerZone') }}</h2>
+                                    <p class="section-desc">{{ t('settings.dangerDesc') }}</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="danger-content">
                             <div class="danger-notice">
-                                <h3>Delete Account</h3>
-                                <p>
-                                    Once you delete your account, there is no going back. This action permanently
-                                    removes
-                                    all
-                                    your data,
-                                    including your profile, posts, and activity history.
-                                </p>
+                                <h3>{{ t('settings.deleteAccount') }}</h3>
+                                <p>{{ t('settings.deleteNotice') }}</p>
                             </div>
 
                             <button class="btn btn-outline-danger btn-glow-danger" @click="showDeleteModal = true">
                                 <i class="bi bi-trash-fill me-2"></i>
-                                Delete Account
+                                {{ t('settings.deleteAccount') }}
                             </button>
                         </div>
                     </div>
@@ -146,7 +140,7 @@
                                 <div class="modal-header border-danger">
                                     <h3 class="modal-title text-danger">
                                         <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                        Confirm Account Deletion
+                                        {{ t('settings.modal.title') }}
                                     </h3>
                                     <button class="btn-close" @click="closeModal">
                                         <i class="bi bi-x-lg"></i>
@@ -154,17 +148,10 @@
                                 </div>
 
                                 <div class="modal-body">
-                                    <p class="warning-text">
-                                        This action <strong class="text-danger">cannot be undone</strong>.
-                                        This will permanently delete your account and remove all associated data from
-                                        our
-                                        servers.
-                                    </p>
+                                    <p class="warning-text">{{ t('settings.modal.warning') }}</p>
 
                                     <div class="confirmation-input">
-                                        <label>
-                                            Please type <code class="text-danger fw-bold">DELETE</code> to confirm:
-                                        </label>
+                                        <label>{{ t('settings.modal.typeLabel') }}</label>
                                         <input v-model="deleteConfirmText" type="text" class="form-control"
                                             placeholder="DELETE" :disabled="isDeleting" />
                                     </div>
@@ -179,13 +166,13 @@
 
                                 <div class="modal-footer">
                                     <button class="btn btn-secondary" @click="closeModal" :disabled="isDeleting">
-                                        Cancel
+                                        {{ t('settings.modal.cancel') }}
                                     </button>
                                     <button class="btn btn-danger"
                                         :disabled="deleteConfirmText !== 'DELETE' || isDeleting"
                                         @click="handleDeleteAccount">
                                         <span v-if="isDeleting" class="spinner-border spinner-border-sm me-2"></span>
-                                        {{ isDeleting ? 'Deleting...' : 'Delete Account' }}
+                                        {{ isDeleting ? t('settings.modal.deleting') : t('settings.modal.deleteAccount') }}
                                     </button>
                                 </div>
                             </div>
@@ -201,9 +188,11 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import api from '@/api/http'
 
+const { t } = useI18n()
 const router = useRouter()
 
 // --- Password Change State ---
@@ -240,23 +229,23 @@ const validatePassword = () => {
     errors.confirm = ''
 
     if (!passwordForm.current) {
-        errors.current = 'Current password is required'
+        errors.current = t('settings.errors.currentRequired')
         valid = false
     }
 
     if (!passwordForm.new) {
-        errors.new = 'New password is required'
+        errors.new = t('settings.errors.newRequired')
         valid = false
     } else if (passwordForm.new.length < 6) {
-        errors.new = 'Password must be at least 6 characters'
+        errors.new = t('settings.errors.newTooShort')
         valid = false
     }
 
     if (!passwordForm.confirm) {
-        errors.confirm = 'Please confirm your password'
+        errors.confirm = t('settings.errors.confirmRequired')
         valid = false
     } else if (passwordForm.new !== passwordForm.confirm) {
-        errors.confirm = 'Passwords do not match'
+        errors.confirm = t('settings.errors.confirmMismatch')
         valid = false
     }
 
