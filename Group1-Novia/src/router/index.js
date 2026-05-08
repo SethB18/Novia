@@ -135,7 +135,7 @@ const router = createRouter({
 router.beforeEach((to) => {
   const auth = useAuthStores()
 
-  if (!auth.isLoggedIn && to.meta.require) {
+  if (!auth.isLoggedIn && (to.meta.require || to.name === 'NotFound')) {
     return { name: 'landing' }
   }
 
