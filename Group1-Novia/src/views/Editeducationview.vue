@@ -75,17 +75,11 @@
             <label class="field-label">Degree / Level <span class="req">*</span></label>
             <div class="select-wrap">
               <Award :size="15" class="input-icon" />
-              <select v-model="form.degree_id" class="f-select" @change="onDegreeChange">
+              <select v-model="form.degree_id" class="f-select">
                 <option value="" disabled>Select degree level</option>
                 <option v-for="d in degrees" :key="d.id" :value="d.id">{{ d.name }}</option>
-                <option value="custom">Other (type below)</option>
               </select>
               <ChevronDown :size="14" class="select-arrow" />
-            </div>
-            <!-- Custom degree input -->
-            <div class="input-wrap mt-2" v-if="form.degree_id === 'custom'">
-              <Pencil :size="15" class="input-icon" />
-              <input v-model="form.degree_name_custom" type="text" class="f-input" placeholder="Enter degree name" />
             </div>
           </div>
 
@@ -333,6 +327,7 @@ import {
 } from "lucide-vue-next"
 import { useAuthStores }   from "@/stores/auth"
 import { useProfileStore } from "@/stores/profile"
+import api from "@/api/http"
 
 const auth         = useAuthStores()
 const profileStore = useProfileStore()
@@ -356,36 +351,9 @@ const showSubjectDrop = ref(false)
 const filteredSchools  = ref([])
 const filteredSubjects = ref([])
 
-// ──────────────────────────────────────────────────────────
-// Static lookup data
-// Ideally fetched from API: GET /api/schools, /api/degrees, /api/subjects
-// Replace with your actual API calls if available
-// ──────────────────────────────────────────────────────────
-const allSchools = ref([
-  { id: 1, name: "Phnom Penh International University" },
-  { id: 2, name: "Royal University of Phnom Penh" },
-  { id: 3, name: "Institute of Technology of Cambodia" },
-  { id: 4, name: "Norton University" },
-  { id: 5, name: "Paragon International University" },
-])
-
-const degrees = ref([
-  { id: 1, name: "Bachelor"  },
-  { id: 2, name: "Master"    },
-  { id: 3, name: "PhD"       },
-  { id: 4, name: "Associate" },
-  { id: 5, name: "Diploma"   },
-  { id: 6, name: "Certificate" },
-])
-
-const allSubjects = ref([
-  { id: 1, name: "Computer Science"     },
-  { id: 2, name: "Computer Graphic"     },
-  { id: 3, name: "Information Technology" },
-  { id: 4, name: "Software Engineering" },
-  { id: 5, name: "Business Administration" },
-  { id: 6, name: "Data Science"         },
-])
+const allSchools  = ref([])
+const degrees     = ref([])
+const allSubjects = ref([])
 
 // ──────────────────────────────────────────────────────────
 // Form model — matches API send payload:
@@ -417,8 +385,9 @@ const emptyForm = () => ({
 const form = ref(emptyForm())
 
 const canSubmit = computed(() =>
-  (form.value.school_id || schoolSearch.value) &&
+  form.value.school_id &&
   form.value.degree_id &&
+  form.value.degree_id !== 'custom' &&
   form.value.start_date
 )
 
@@ -428,9 +397,16 @@ const canSubmit = computed(() =>
 onMounted(async () => {
   loading.value = true
   try {
-    const res = await auth.profile()
-    // res.data.data.educations → [{ id, school:{id,name}, degree:{id,name}, subject:{id,name}, description, start_date, end_date }]
-    if (res.data.result) educations.value = res.data.data.educations ?? []
+    const [profileRes, schoolsRes, degreesRes, subjectsRes] = await Promise.all([
+      auth.profile(),
+      api.get('/api/schools'),
+      api.get('/api/degrees'),
+      api.get('/api/subjects'),
+    ])
+    if (profileRes.data.result)  educations.value = profileRes.data.data.educations ?? []
+    if (schoolsRes.data.result)  allSchools.value  = schoolsRes.data.data
+    if (degreesRes.data.result)  degrees.value     = degreesRes.data.data
+    if (subjectsRes.data.result) allSubjects.value = subjectsRes.data.data
   } catch (e) { console.error(e) }
   finally { loading.value = false }
 })
@@ -505,26 +481,9 @@ function buildPayload() {
     description: form.value.description || null,
   }
 
-  // School: prefer id, fall back to typed name
-  if (form.value.school_id) {
-    p.school_id = form.value.school_id
-  } else if (schoolSearch.value) {
-    p.school_name = schoolSearch.value
-  }
-
-  // Degree: prefer id, fall back to custom text
-  if (form.value.degree_id && form.value.degree_id !== "custom") {
-    p.degree_id = form.value.degree_id
-  } else if (form.value.degree_name_custom) {
-    p.degree_name = form.value.degree_name_custom
-  }
-
-  // Subject: prefer id, fall back to typed name
-  if (form.value.subject_id) {
-    p.subject_id = form.value.subject_id
-  } else if (subjectSearch.value) {
-    p.subject_name = subjectSearch.value
-  }
+  if (form.value.school_id)  p.school_id  = form.value.school_id
+  if (form.value.degree_id)  p.degree_id  = form.value.degree_id
+  if (form.value.subject_id) p.subject_id = form.value.subject_id
 
   return p
 }
