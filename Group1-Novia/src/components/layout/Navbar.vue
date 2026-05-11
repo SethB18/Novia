@@ -3,7 +3,7 @@
         <div class="navbar-container">
             <!-- Left: Brand -->
             <div class="navbar-section left">
-                <router-link to="/settings" class="brand">
+                <router-link to="/" class="brand">
                     <div class="logo-icon">
                         <i class="bi bi-hexagon-fill"></i>
                     </div>
@@ -277,7 +277,7 @@ onUnmounted(() => {
 }
 
 .logo-text {
-    font-size: 1.5rem;
+    font-size: 1.65rem;
     font-weight: 700;
     color: #1e293b;
     letter-spacing: -0.5px;
@@ -309,7 +309,7 @@ onUnmounted(() => {
     border: 2px solid transparent;
     border-radius: 21px;
     padding: 0 1rem 0 2.5rem;
-    font-size: 0.9rem;
+    font-size: 1rem;
     transition: all 0.3s;
 }
 
@@ -373,7 +373,7 @@ onUnmounted(() => {
 
 .result-name {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 600;
     color: #1e293b;
     white-space: nowrap;
@@ -383,7 +383,7 @@ onUnmounted(() => {
 
 .result-title {
     margin: 0;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     color: #94a3b8;
     white-space: nowrap;
     overflow: hidden;
@@ -522,7 +522,7 @@ onUnmounted(() => {
     padding: 0.75rem 1rem;
     color: #374151;
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 1rem;
     transition: all 0.2s;
     border: none;
     background: none;
@@ -557,7 +557,7 @@ onUnmounted(() => {
 }
 
 .user-name {
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 600;
     color: #1e293b;
 }
